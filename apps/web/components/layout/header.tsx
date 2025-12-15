@@ -12,8 +12,15 @@ export function Header() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
+    // Check if dark mode is already set, if not default to dark
     const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
+    if (!isDarkMode && !document.documentElement.classList.contains("light")) {
+      // Default to dark mode on first load
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    } else {
+      setIsDark(isDarkMode);
+    }
   }, []);
 
   const toggleTheme = () => {

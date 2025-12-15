@@ -3,9 +3,9 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: ["class"],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -43,7 +43,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // UC Platform specific colors
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
@@ -51,6 +50,23 @@ const config: Config = {
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
+        },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
         },
       },
       borderRadius: {

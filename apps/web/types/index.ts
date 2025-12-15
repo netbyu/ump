@@ -1,3 +1,21 @@
+// Navigation Types
+export type PageView =
+  | "dashboard"
+  | "itsm-requests"
+  | "monitoring"
+  | "phone-systems"
+  | "call-report"
+  | "automation-dashboard"
+  | "automation-builder"
+  | "agents"
+  | "mcp"
+  | "fax-management"
+  | "ivr"
+  | "self-service"
+  | "integrations"
+  | "admin"
+  | "settings";
+
 // User & Authentication Types
 export interface User {
   id: string;
@@ -10,6 +28,14 @@ export interface User {
 }
 
 export type UserRole = "admin" | "operator" | "viewer";
+
+export interface UserPermissions {
+  roles: string[];
+  permissions: {
+    resource: string;
+    actions: string[];
+  }[];
+}
 
 export interface AuthState {
   user: User | null;

@@ -4,7 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Server, Workflow, MessageSquare } from "lucide-react";
 
-const stats = [
+type StatusType = "online" | "offline" | "degraded";
+
+const stats: {
+  name: string;
+  value: string;
+  status: StatusType;
+  icon: typeof Phone;
+  description: string;
+}[] = [
   {
     name: "Phone Systems",
     value: "12",
@@ -35,11 +43,11 @@ const stats = [
   },
 ];
 
-const statusColors = {
+const statusColors: Record<StatusType, "success" | "destructive" | "warning"> = {
   online: "success",
   offline: "destructive",
   degraded: "warning",
-} as const;
+};
 
 export default function DashboardPage() {
   return (

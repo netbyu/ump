@@ -1,129 +1,243 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
-  Phone,
-  Server,
-  Workflow,
-  MessageSquare,
-  Settings,
-  LayoutDashboard,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useState } from "react";
+  LayoutDashboard, FileText, Paintbrush, Zap, UserCircle,
+  Plug, Settings, ChevronLeft, Shield, Server, BarChart3,
+  Bot, FileImage, Activity, ChevronDown, Workflow, Network
+} from 'lucide-react';
+import { PageView } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
 
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Phone Systems",
-    href: "/phone-systems",
-    icon: Phone,
-  },
-  {
-    name: "Infrastructure",
-    href: "/infrastructure",
-    icon: Server,
-  },
-  {
-    name: "Automation",
-    href: "/automation",
-    icon: Workflow,
-  },
-  {
-    name: "AI Assistant",
-    href: "/chat",
-    icon: MessageSquare,
-  },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
-];
+interface SidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+}
 
-export function Sidebar() {
+// Map pages to required permissions (resource:action)
+const pagePermissions: Record<string, { resource: string; action: string } | null> = {
+  'dashboard': null, // Always visible
+  'itsm-requests': { resource: 'itsm', action: 'read' },
+  'monitoring': { resource: 'monitoring', action: 'read' },
+  'phone-systems': { resource: 'extensions', action: 'read' },
+  'call-report': { resource: 'reports', action: 'read' },
+  'automation-dashboard': { resource: 'automation', action: 'read' },
+  'automation-builder': { resource: 'automation', action: 'update' },
+  'agents': { resource: 'agents', action: 'read' },
+  'mcp': { resource: 'agents', action: 'read' },
+  'fax-management': { resource: 'fax', action: 'read' },
+  'ivr': { resource: 'ivr', action: 'read' },
+  'self-service': null, // Always visible to authenticated users
+  'integrations': { resource: 'integrations', action: 'read' },
+  'admin': { resource: 'users', action: 'read' },
+  'settings': { resource: 'settings', action: 'read' },
+};
+
+// Map PageView IDs to routes
+const routeMap: Record<PageView, string> = {
+  'dashboard': '/dashboard',
+  'itsm-requests': '/itsm',
+  'monitoring': '/monitoring',
+  'phone-systems': '/phone-systems',
+  'call-report': '/call-report',
+  'automation-dashboard': '/automation',
+  'automation-builder': '/automation/builder',
+  'agents': '/agents',
+  'mcp': '/mcp',
+  'fax-management': '/fax',
+  'ivr': '/ivr',
+  'self-service': '/self-service',
+  'integrations': '/integrations',
+  'admin': '/admin',
+  'settings': '/settings',
+};
+
+export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['automation', 'ai', 'management']);
+  const { hasPermission, permissions } = useAuth();
+
+  // Check if user can see a page
+  const canAccessPage = (pageId: string): boolean => {
+    const permission = pagePermissions[pageId];
+    if (!permission) return true; // No permission required
+    return hasPermission(permission.resource, permission.action);
+  };
+
+  // Determine current page from pathname
+  const getCurrentPage = (): PageView => {
+    const entry = Object.entries(routeMap).find(([_, route]) => route === pathname);
+    return entry ? (entry[0] as PageView) : 'dashboard';
+  };
+
+  const currentPage = getCurrentPage();
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  const allNavItems = [
+    { id: 'dashboard' as PageView, icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'itsm-requests' as PageView, icon: FileText, label: 'ITSM Requests' },
+    { id: 'monitoring' as PageView, icon: Activity, label: 'Monitoring' },
+    { id: 'phone-systems' as PageView, icon: Server, label: 'Phone Systems' },
+    { id: 'call-report' as PageView, icon: BarChart3, label: 'Call Report' },
+    {
+      id: 'automation',
+      icon: Workflow,
+      label: 'Automation',
+      isSection: true,
+      children: [
+        { id: 'automation-dashboard' as PageView, icon: BarChart3, label: 'Dashboard' },
+        { id: 'automation-builder' as PageView, icon: Zap, label: 'Builder' },
+      ]
+    },
+    {
+      id: 'ai',
+      icon: Bot,
+      label: 'AI',
+      isSection: true,
+      children: [
+        { id: 'agents' as PageView, icon: Bot, label: 'Agents' },
+        { id: 'mcp' as PageView, icon: Network, label: 'MCP' },
+      ]
+    },
+    {
+      id: 'management',
+      icon: Settings,
+      label: 'Management',
+      isSection: true,
+      children: [
+        { id: 'fax-management' as PageView, icon: FileImage, label: 'Fax Management' },
+        { id: 'ivr' as PageView, icon: Paintbrush, label: 'IVR Management' },
+      ]
+    },
+    { id: 'self-service' as PageView, icon: UserCircle, label: 'User Self-Service Portal' },
+    { id: 'integrations' as PageView, icon: Plug, label: 'Integrations' },
+    { id: 'admin' as PageView, icon: Shield, label: 'Admin' },
+  ];
+
+  // Filter nav items based on permissions
+  const navItems = useMemo(() => {
+    return allNavItems.filter(item => {
+      if ('isSection' in item && item.isSection && item.children) {
+        // For sections, filter children first
+        const visibleChildren = item.children.filter(child => canAccessPage(child.id));
+        // Only show section if at least one child is visible
+        return visibleChildren.length > 0;
+      }
+      return canAccessPage(item.id);
+    }).map(item => {
+      if ('isSection' in item && item.isSection && item.children) {
+        // Filter children for sections
+        return {
+          ...item,
+          children: item.children.filter(child => canAccessPage(child.id))
+        };
+      }
+      return item;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissions]);
 
   return (
-    <aside
-      className={cn(
-        "flex flex-col h-screen bg-card border-r transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
-      {/* Logo */}
-      <div className="flex items-center h-16 px-4 border-b">
-        {!collapsed && (
-          <span className="text-xl font-bold text-primary">UC Platform</span>
-        )}
-        {collapsed && (
-          <span className="text-xl font-bold text-primary mx-auto">UC</span>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        {navigation.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+    <div className={`bg-gray-900 text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-700 ${collapsed ? 'w-16' : 'w-64'}`}>
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {navItems.map((item) => {
           const Icon = item.icon;
+          const isActive = currentPage === item.id;
 
-          const linkContent = (
-            <Link
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}
-            >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.name}</span>}
-            </Link>
-          );
+          // Section with children
+          if ('isSection' in item && item.isSection) {
+            const isExpanded = expandedSections.includes(item.id);
 
-          if (collapsed) {
             return (
-              <Tooltip key={item.href} delayDuration={0}>
-                <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                <TooltipContent side="right">{item.name}</TooltipContent>
-              </Tooltip>
+              <div key={item.id}>
+                <button
+                  onClick={() => !collapsed && toggleSection(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-800 text-gray-300`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </>
+                  )}
+                </button>
+
+                {!collapsed && isExpanded && item.children && (
+                  <div className="ml-4 mt-1 space-y-1 border-l border-gray-700 pl-2">
+                    {item.children.map((child) => {
+                      const ChildIcon = child.icon;
+                      const isChildActive = currentPage === child.id;
+
+                      return (
+                        <Link
+                          key={child.id}
+                          href={routeMap[child.id]}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
+                            isChildActive
+                              ? 'bg-blue-600 text-white'
+                              : 'hover:bg-gray-800 text-gray-400'
+                          }`}
+                        >
+                          <ChildIcon className="w-4 h-4 flex-shrink-0" />
+                          <span>{child.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           }
 
-          return <div key={item.href}>{linkContent}</div>;
+          // Regular nav item
+          return (
+            <Link
+              key={item.id}
+              href={routeMap[item.id]}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                isActive
+                  ? 'bg-blue-600 text-white'
+                  : 'hover:bg-gray-800 text-gray-300'
+              }`}
+            >
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
         })}
+
+        <div className="my-4 border-t border-gray-700"></div>
+
+        <Link
+          href={routeMap.settings}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+            currentPage === 'settings'
+              ? 'bg-blue-600 text-white'
+              : 'hover:bg-gray-800 text-gray-300'
+          }`}
+        >
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span>Settings</span>}
+        </Link>
       </nav>
 
       {/* Collapse Toggle */}
-      <div className="p-2 border-t">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-full"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    </aside>
+      <button
+        onClick={onToggleCollapse}
+        className="p-4 hover:bg-gray-800 transition-colors flex items-center justify-center border-t border-gray-700"
+      >
+        <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+      </button>
+    </div>
   );
 }

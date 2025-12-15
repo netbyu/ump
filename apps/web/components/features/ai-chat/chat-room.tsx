@@ -135,7 +135,7 @@ function ChatInterface() {
       type: "message",
       content: inputValue.trim(),
     });
-    send(new TextEncoder().encode(payload));
+    send(new TextEncoder().encode(payload), { reliable: true });
 
     setInputValue("");
   }, [inputValue, isProcessing, send]);
