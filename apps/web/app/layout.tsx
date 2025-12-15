@@ -6,7 +6,7 @@ import { Providers } from "@/components/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UC Platform - Unified Communication Management",
+  title: "Unified Communication Platform",
   description:
     "Manage phone systems, IT infrastructure, and automation workflows",
 };

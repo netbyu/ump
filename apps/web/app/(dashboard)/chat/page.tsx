@@ -8,7 +8,7 @@ export default function ChatPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold">AI Assistant</h1>
         <p className="text-muted-foreground">
-          Chat with AI to get help managing your UC platform
+          Chat with AI to get help managing your Unified Communication platform
         </p>
       </div>
       <div className="h-[calc(100%-5rem)] border rounded-lg bg-card">

@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ucmp-connectors"
+version = "1.0.0"
+description = "UCMP Connector Framework - Integration platform for automation connectors"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "UCMP Team" }
+]
+keywords = ["connectors", "integrations", "automation", "telephony", "workflows"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "httpx>=0.25.0",
+    "cryptography>=41.0.0",
+    "PyYAML>=6.0",
+    "jsonschema>=4.0.0",
+]
+
+[project.optional-dependencies]
+fastapi = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+]
+postgres = [
+    "asyncpg>=0.29.0",
+]
+temporal = [
+    "temporalio>=1.4.0",
+]
+full = [
+    "ucmp-connectors[fastapi,postgres,temporal]",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "ruff>=0.2.0",
+    "mypy>=1.8.0",
+]
+
+[project.urls]
+Documentation = "https://github.com/ump/connectors#readme"
+Source = "https://github.com/ump/connectors"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ucmp_connectors"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -241,6 +241,28 @@ class Location(Base):
     devices = relationship("Device", back_populates="location_rel")
 
 
+class DeviceGroupType(Base):
+    """Lookup table for device group types and their behaviors"""
+    __tablename__ = "device_group_types"
+    __table_args__ = {"schema": "devices"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False, unique=True)
+    display_name = Column(String(100), nullable=False)
+    description = Column(Text)
+    grouping_behavior = Column(Text, nullable=False)  # Description of how devices are grouped
+    match_field = Column(String(100))  # Field to match on (e.g., 'device_group_id', 'location_id')
+    icon = Column(String(50))
+    color = Column(String(20))
+    display_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    groups = relationship("DeviceGroup", back_populates="group_type_rel")
+
+
 class DeviceGroup(Base):
     """Hierarchical groups for devices"""
     __tablename__ = "device_groups"
@@ -250,7 +272,8 @@ class DeviceGroup(Base):
     name = Column(String, nullable=False)
     parent_id = Column(Integer, ForeignKey("devices.device_groups.id"))
     description = Column(Text)
-    group_type = Column(String)
+    group_type = Column(String)  # Legacy string field
+    group_type_id = Column(Integer, ForeignKey("devices.device_group_types.id"))
     icon = Column(String)
     color = Column(String)
     display_order = Column(Integer)
@@ -264,6 +287,7 @@ class DeviceGroup(Base):
 
     # Relationships
     parent = relationship("DeviceGroup", remote_side=[id], backref="children")
+    group_type_rel = relationship("DeviceGroupType", back_populates="groups")
     memberships = relationship("DeviceGroupMembership", back_populates="group")
 
 
@@ -285,6 +309,8 @@ class Device(Base):
     mac_address = Column(String)
     description = Column(Text)
     is_active = Column(Boolean, default=True)
+    has_vip = Column(Boolean, default=False)
+    vip_address = Column(String)
     extra_data = Column(JSONB, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

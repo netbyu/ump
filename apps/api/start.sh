@@ -26,7 +26,7 @@ INIT_AI=false
 INIT_ADMIN=false
 DEV_MODE=false
 HOST="0.0.0.0"
-PORT=8000
+PORT=8001
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -73,7 +73,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --init-all     Initialize all databases"
             echo "  --dev         Run in development mode with auto-reload"
             echo "  --host HOST   Host to bind to (default: 0.0.0.0)"
-            echo "  --port PORT   Port to listen on (default: 8000)"
+            echo "  --port PORT   Port to listen on (default: 8001)"
             echo "  -h, --help    Show this help message"
             echo ""
             echo "Examples:"

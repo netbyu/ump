@@ -29,7 +29,7 @@ export function TopBar() {
             <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="currentColor"/>
           </svg>
         </div>
-        <span className="text-white font-semibold">UCMP</span>
+        <span className="text-white font-semibold">Unified Communication</span>
       </div>
 
       {/* Global Search */}

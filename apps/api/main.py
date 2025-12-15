@@ -23,6 +23,7 @@ from models import DeviceType as DBDeviceType
 from models import DeviceManufacturer as DBDeviceManufacturer
 from models import Location as DBLocation
 from models import DeviceGroup as DBDeviceGroup
+from models import DeviceGroupType as DBDeviceGroupType
 
 # LiveKit token generation
 from livekit import api
@@ -1302,6 +1303,8 @@ class DeviceBase(BaseModel):
     is_active: bool = True
     device_type_id: Optional[int] = None
     manufacturer_id: Optional[int] = None
+    has_vip: bool = False
+    vip_address: Optional[str] = None
 
 
 class DeviceCreate(DeviceBase):
@@ -1322,6 +1325,8 @@ class DeviceUpdate(BaseModel):
     is_active: Optional[bool] = None
     device_type_id: Optional[int] = None
     manufacturer_id: Optional[int] = None
+    has_vip: Optional[bool] = None
+    vip_address: Optional[str] = None
 
 
 # ============== Device Routes ==============
@@ -1407,6 +1412,8 @@ async def list_devices(
             "mac_address": device.mac_address,
             "description": device.description,
             "is_active": device.is_active,
+            "has_vip": device.has_vip or False,
+            "vip_address": device.vip_address,
             "created_at": device.created_at.isoformat() if device.created_at else None,
             "updated_at": device.updated_at.isoformat() if device.updated_at else None,
             "created_by": device.created_by,
@@ -1490,27 +1497,70 @@ async def list_locations(db=Depends(get_db)):
     }
 
 
-@app.get("/api/devices/groups")
-async def list_device_groups(db=Depends(get_db)):
-    """Get all device groups"""
-    query = select(DBDeviceGroup).where(DBDeviceGroup.is_active == True).order_by(DBDeviceGroup.display_order, DBDeviceGroup.name)
+@app.get("/api/devices/group-types")
+async def list_device_group_types(db=Depends(get_db)):
+    """Get all device group types (grouping behaviors)"""
+    query = select(DBDeviceGroupType).where(DBDeviceGroupType.is_active == True).order_by(DBDeviceGroupType.display_order)
     result = await db.execute(query)
-    groups = result.scalars().all()
+    types = result.scalars().all()
 
     return {
         "data": [
             {
-                "id": g.id,
-                "name": g.name,
-                "description": g.description,
-                "group_type": g.group_type,
-                "icon": g.icon,
-                "color": g.color,
-                "parent_id": g.parent_id,
+                "id": t.id,
+                "name": t.name,
+                "display_name": t.display_name,
+                "description": t.description,
+                "grouping_behavior": t.grouping_behavior,
+                "match_field": t.match_field,
+                "icon": t.icon,
+                "color": t.color,
             }
-            for g in groups
+            for t in types
         ]
     }
+
+
+@app.get("/api/devices/groups")
+async def list_device_groups(db=Depends(get_db)):
+    """Get all device groups with their group type info"""
+    query = select(DBDeviceGroup).where(DBDeviceGroup.is_active == True).order_by(DBDeviceGroup.display_order, DBDeviceGroup.name)
+    result = await db.execute(query)
+    groups = result.scalars().all()
+
+    # Build response with group type info
+    groups_data = []
+    for g in groups:
+        # Get group type info if available
+        group_type_info = None
+        if g.group_type_id:
+            gt_result = await db.execute(select(DBDeviceGroupType).where(DBDeviceGroupType.id == g.group_type_id))
+            gt = gt_result.scalar_one_or_none()
+            if gt:
+                group_type_info = {
+                    "id": gt.id,
+                    "name": gt.name,
+                    "display_name": gt.display_name,
+                    "grouping_behavior": gt.grouping_behavior,
+                    "match_field": gt.match_field,
+                }
+
+        groups_data.append({
+            "id": g.id,
+            "name": g.name,
+            "description": g.description,
+            "group_type": g.group_type,  # Legacy string field
+            "group_type_id": g.group_type_id,
+            "group_type_info": group_type_info,
+            "icon": g.icon,
+            "color": g.color,
+            "parent_id": g.parent_id,
+            "display_order": g.display_order,
+            "avaya_location_id": g.avaya_location_id,
+            "extra_data": g.extra_data,
+        })
+
+    return {"data": groups_data}
 
 
 @app.get("/api/devices/{device_id}")
@@ -1567,6 +1617,8 @@ async def get_device(device_id: int, db=Depends(get_db)):
             "mac_address": device.mac_address,
             "description": device.description,
             "is_active": device.is_active,
+            "has_vip": device.has_vip or False,
+            "vip_address": device.vip_address,
             "extra_data": device.extra_data,
             "created_at": device.created_at.isoformat() if device.created_at else None,
             "updated_at": device.updated_at.isoformat() if device.updated_at else None,
@@ -1593,6 +1645,8 @@ async def create_device(request: DeviceCreate, db=Depends(get_db)):
         is_active=request.is_active,
         device_type_id=request.device_type_id,
         manufacturer_id=request.manufacturer_id,
+        has_vip=request.has_vip,
+        vip_address=request.vip_address,
     )
 
     db.add(new_device)
@@ -1606,6 +1660,8 @@ async def create_device(request: DeviceCreate, db=Depends(get_db)):
             "device_name": new_device.device_name,
             "device_type": new_device.device_type,
             "primary_address": new_device.primary_address,
+            "has_vip": new_device.has_vip,
+            "vip_address": new_device.vip_address,
         },
         "message": "Device created successfully",
     }
@@ -1634,6 +1690,8 @@ async def update_device(device_id: int, request: DeviceUpdate, db=Depends(get_db
             "device_name": device.device_name,
             "device_type": device.device_type,
             "primary_address": device.primary_address,
+            "has_vip": device.has_vip,
+            "vip_address": device.vip_address,
         },
         "message": "Device updated successfully",
     }
@@ -1697,3 +1755,21 @@ async def health_check():
 @app.get("/")
 async def root():
     return {"message": "UC Platform API", "docs": "/docs"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8001"))
+    debug = os.getenv("DEBUG", "False").lower() == "true"
+
+    uvicorn.run(
+        "main:app",
+        host=host,
+        port=port,
+        reload=debug
+    )

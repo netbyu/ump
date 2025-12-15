@@ -6,10 +6,11 @@ import Link from 'next/link';
 import {
   LayoutDashboard, FileText, Paintbrush, Zap, UserCircle,
   Plug, Settings, ChevronLeft, Shield, Server, BarChart3,
-  Bot, FileImage, Activity, ChevronDown, Workflow, Network
+  Bot, FileImage, Activity, ChevronDown, Workflow, Network, HardDrive, Phone, Layers
 } from 'lucide-react';
 import { PageView } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
+import { useFeatureFlags } from '@/contexts/feature-flags-context';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -21,6 +22,7 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'dashboard': null, // Always visible
   'itsm-requests': { resource: 'itsm', action: 'read' },
   'monitoring': { resource: 'monitoring', action: 'read' },
+  'systems': { resource: 'devices', action: 'read' },
   'phone-systems': { resource: 'extensions', action: 'read' },
   'call-report': { resource: 'reports', action: 'read' },
   'automation-dashboard': { resource: 'automation', action: 'read' },
@@ -31,6 +33,7 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'ivr': { resource: 'ivr', action: 'read' },
   'self-service': null, // Always visible to authenticated users
   'integrations': { resource: 'integrations', action: 'read' },
+  'devices': { resource: 'devices', action: 'read' },
   'admin': { resource: 'users', action: 'read' },
   'settings': { resource: 'settings', action: 'read' },
 };
@@ -40,6 +43,7 @@ const routeMap: Record<PageView, string> = {
   'dashboard': '/dashboard',
   'itsm-requests': '/itsm',
   'monitoring': '/monitoring',
+  'systems': '/systems',
   'phone-systems': '/phone-systems',
   'call-report': '/call-report',
   'automation-dashboard': '/automation',
@@ -50,17 +54,23 @@ const routeMap: Record<PageView, string> = {
   'ivr': '/ivr',
   'self-service': '/self-service',
   'integrations': '/integrations',
+  'devices': '/devices',
   'admin': '/admin',
   'settings': '/settings',
 };
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [expandedSections, setExpandedSections] = useState<string[]>(['automation', 'ai', 'management']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['automation', 'ai', 'unified-communication']);
   const { hasPermission, permissions } = useAuth();
+  const { isFeatureEnabled, features } = useFeatureFlags();
 
-  // Check if user can see a page
+  // Check if user can see a page (permission + feature flag)
   const canAccessPage = (pageId: string): boolean => {
+    // First check if feature is enabled
+    if (!isFeatureEnabled(pageId)) return false;
+
+    // Then check permissions
     const permission = pagePermissions[pageId];
     if (!permission) return true; // No permission required
     return hasPermission(permission.resource, permission.action);
@@ -86,8 +96,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     { id: 'dashboard' as PageView, icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'itsm-requests' as PageView, icon: FileText, label: 'ITSM Requests' },
     { id: 'monitoring' as PageView, icon: Activity, label: 'Monitoring' },
-    { id: 'phone-systems' as PageView, icon: Server, label: 'Phone Systems' },
-    { id: 'call-report' as PageView, icon: BarChart3, label: 'Call Report' },
     {
       id: 'automation',
       icon: Workflow,
@@ -109,21 +117,25 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       ]
     },
     {
-      id: 'management',
-      icon: Settings,
-      label: 'Management',
+      id: 'unified-communication',
+      icon: Phone,
+      label: 'Unified Communication',
       isSection: true,
       children: [
+        { id: 'systems' as PageView, icon: Layers, label: 'Systems' },
+        { id: 'phone-systems' as PageView, icon: Server, label: 'Phone Systems' },
+        { id: 'call-report' as PageView, icon: BarChart3, label: 'Call Report' },
         { id: 'fax-management' as PageView, icon: FileImage, label: 'Fax Management' },
         { id: 'ivr' as PageView, icon: Paintbrush, label: 'IVR Management' },
       ]
     },
     { id: 'self-service' as PageView, icon: UserCircle, label: 'User Self-Service Portal' },
     { id: 'integrations' as PageView, icon: Plug, label: 'Integrations' },
+    { id: 'devices' as PageView, icon: HardDrive, label: 'Devices' },
     { id: 'admin' as PageView, icon: Shield, label: 'Admin' },
   ];
 
-  // Filter nav items based on permissions
+  // Filter nav items based on permissions and feature flags
   const navItems = useMemo(() => {
     return allNavItems.filter(item => {
       if ('isSection' in item && item.isSection && item.children) {
@@ -143,8 +155,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       }
       return item;
     });
+  // Include features in dependencies so sidebar reacts to feature flag changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissions]);
+  }, [permissions, features]);
 
   return (
     <div className={`bg-gray-900 text-gray-300 flex flex-col transition-all duration-300 border-r border-gray-700 ${collapsed ? 'w-16' : 'w-64'}`}>
@@ -203,7 +216,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           return (
             <Link
               key={item.id}
-              href={routeMap[item.id]}
+              href={routeMap[item.id as PageView]}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-blue-600 text-white'

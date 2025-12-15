@@ -52,3 +52,9 @@ htmlcov/
 
 # Claude
 .claude/
+
+# References (local development only)
+references/
+
+# TypeScript build info
+*.tsbuildinfo

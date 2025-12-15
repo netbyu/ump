@@ -50,8 +50,8 @@ export function AIChatRoom() {
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4 py-8">
           <p className="text-muted-foreground text-center">
-            Start a conversation with the AI assistant to get help with your UC
-            platform.
+            Start a conversation with the AI assistant to get help with your
+            Unified Communication platform.
           </p>
           {error && <p className="text-destructive text-sm">{error}</p>}
           <Button onClick={startSession} disabled={isConnecting}>

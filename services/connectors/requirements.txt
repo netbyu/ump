@@ -1,0 +1,18 @@
+# UCMP Connectors Service - Requirements
+
+# Core
+pydantic>=2.0.0
+httpx>=0.25.0
+cryptography>=41.0.0
+PyYAML>=6.0
+jsonschema>=4.0.0
+
+# FastAPI
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Database (optional)
+asyncpg>=0.29.0
+
+# Temporal (optional)
+# temporalio>=1.4.0

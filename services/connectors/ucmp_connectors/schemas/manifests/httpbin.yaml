@@ -1,0 +1,177 @@
+# Example: Declarative connector manifest
+# This demonstrates how to define a simple REST API integration via YAML
+# without writing any Python code.
+
+id: httpbin
+name: HTTPBin
+description: Testing connector using httpbin.org
+version: 1.0.0
+icon_url: https://httpbin.org/static/favicon.ico
+documentation_url: https://httpbin.org
+base_url: https://httpbin.org
+
+categories:
+  - testing
+  - development
+
+tags:
+  - http
+  - testing
+  - debugging
+
+# Authentication configuration
+auth:
+  type: api_key
+  header_name: X-API-Key
+  fields:
+    - name: api_key
+      label: API Key
+      type: string
+      required: true
+      description: Your API key (any value works for httpbin)
+
+# Optional test endpoint to verify credentials
+test_endpoint: /get
+
+# Actions available in this connector
+actions:
+  - id: get_request
+    name: GET Request
+    description: Make a GET request
+    method: GET
+    endpoint: /get
+    query_fields:
+      - param1
+      - param2
+    inputs:
+      - name: param1
+        label: Parameter 1
+        type: string
+        required: false
+        description: Optional query parameter
+      - name: param2
+        label: Parameter 2
+        type: string
+        required: false
+    outputs:
+      - name: args
+        label: Arguments
+        type: object
+      - name: headers
+        label: Headers
+        type: object
+      - name: url
+        label: URL
+        type: string
+
+  - id: post_request
+    name: POST Request
+    description: Make a POST request with JSON body
+    method: POST
+    endpoint: /post
+    body_fields:
+      - data
+      - name
+      - value
+    inputs:
+      - name: data
+        label: Data
+        type: object
+        required: false
+        description: JSON data to send
+      - name: name
+        label: Name
+        type: string
+        required: false
+      - name: value
+        label: Value
+        type: string
+        required: false
+    outputs:
+      - name: json
+        label: JSON Response
+        type: object
+      - name: data
+        label: Data
+        type: string
+
+  - id: get_ip
+    name: Get IP Address
+    description: Get your origin IP address
+    method: GET
+    endpoint: /ip
+    inputs: []
+    outputs:
+      - name: origin
+        label: Origin IP
+        type: string
+
+  - id: get_headers
+    name: Get Headers
+    description: Return request headers
+    method: GET
+    endpoint: /headers
+    inputs: []
+    outputs:
+      - name: headers
+        label: Headers
+        type: object
+
+  - id: get_user_agent
+    name: Get User Agent
+    description: Return the user agent
+    method: GET
+    endpoint: /user-agent
+    inputs: []
+    outputs:
+      - name: user-agent
+        label: User Agent
+        type: string
+
+  - id: delay_response
+    name: Delayed Response
+    description: Wait for specified seconds before responding
+    method: GET
+    endpoint: /delay/{seconds}
+    inputs:
+      - name: seconds
+        label: Seconds
+        type: integer
+        required: true
+        min_value: 0
+        max_value: 10
+        description: Number of seconds to delay
+    outputs:
+      - name: url
+        label: URL
+        type: string
+
+  - id: status_code
+    name: Return Status Code
+    description: Return a specific HTTP status code
+    method: GET
+    endpoint: /status/{code}
+    inputs:
+      - name: code
+        label: Status Code
+        type: integer
+        required: true
+        description: HTTP status code to return
+    outputs: []
+
+  - id: generate_uuid
+    name: Generate UUID
+    description: Generate a random UUID
+    method: GET
+    endpoint: /uuid
+    inputs: []
+    outputs:
+      - name: uuid
+        label: UUID
+        type: string
+
+# Webhooks/Triggers (httpbin doesn't support these, but example structure)
+triggers: []
+
+# Supports webhooks flag
+supports_webhooks: false
