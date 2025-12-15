@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,14 @@ import {
   Filter,
   LayoutGrid,
   List,
+  ChevronDown,
+  ChevronRight,
+  Cable,
+  Play,
+  AlertCircle,
+  Clock,
+  Key,
+  Link2,
 } from "lucide-react";
 import {
   useDevices,
@@ -69,8 +77,15 @@ import {
   useDeleteDevice,
   useActivateDevice,
   useDeactivateDevice,
+  useDeviceIntegrations,
+  useCreateDeviceIntegration,
+  useUpdateDeviceIntegration,
+  useDeleteDeviceIntegration,
+  useTestDeviceIntegration,
+  useCredentialGroups,
 } from "@/hooks/use-devices";
-import { Device, DeviceCreate, DeviceFilters, DeviceCategory } from "@/types";
+import { useProviders } from "@/hooks/use-connectors";
+import { Device, DeviceCreate, DeviceFilters, DeviceCategory, DeviceIntegration, DeviceIntegrationCreate, DeviceIntegrationUpdate, CredentialSource, CredentialType } from "@/types";
 
 // Mock data for when API is not available
 const MOCK_DEVICES: Device[] = [
@@ -217,6 +232,698 @@ function getCategoryColor(category: string): string {
   }
 }
 
+// Component for displaying device integrations in expandable row
+function DeviceIntegrationsRow({ device, onClose }: { device: Device; onClose: () => void }) {
+  const { data: integrations, isLoading, error } = useDeviceIntegrations(device.id);
+  const { data: providers } = useProviders();
+  const { data: credentialGroups } = useCredentialGroups();
+  const createIntegration = useCreateDeviceIntegration();
+  const updateIntegration = useUpdateDeviceIntegration();
+  const deleteIntegration = useDeleteDeviceIntegration();
+  const testIntegration = useTestDeviceIntegration();
+  const [testingId, setTestingId] = useState<number | null>(null);
+  const [testResult, setTestResult] = useState<{ id: number; success: boolean; message: string } | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingIntegration, setEditingIntegration] = useState<DeviceIntegration | null>(null);
+  const [integrationForm, setIntegrationForm] = useState<DeviceIntegrationCreate>({
+    provider_id: "",
+    host_override: "",
+    port: undefined,
+    enabled: true,
+    verify_ssl: true,
+    timeout: 30,
+    credential_source: "local",
+    credential_group_id: undefined,
+    credentials: {},
+    config: {},
+  });
+  const [editForm, setEditForm] = useState<DeviceIntegrationUpdate>({});
+
+  const getProviderName = (providerId: string) => {
+    if (!providerId) return "Not selected";
+    const provider = providers?.find(p => p.id === providerId);
+    return provider?.name || providerId;
+  };
+
+  const handleTest = async (integrationId: number) => {
+    setTestingId(integrationId);
+    setTestResult(null);
+    try {
+      const result = await testIntegration.mutateAsync({ deviceId: device.id, integrationId });
+      setTestResult({ id: integrationId, ...result });
+    } catch (err) {
+      setTestResult({ id: integrationId, success: false, message: (err as Error).message });
+    } finally {
+      setTestingId(null);
+    }
+  };
+
+  const handleDelete = async (integrationId: number) => {
+    if (confirm("Are you sure you want to delete this integration?")) {
+      await deleteIntegration.mutateAsync({ deviceId: device.id, integrationId });
+    }
+  };
+
+  const handleAddIntegration = async () => {
+    if (!integrationForm.provider_id) return;
+    try {
+      await createIntegration.mutateAsync({
+        deviceId: device.id,
+        integration: integrationForm,
+      });
+      setIsAddDialogOpen(false);
+      setIntegrationForm({
+        provider_id: "",
+        host_override: "",
+        port: undefined,
+        enabled: true,
+        verify_ssl: true,
+        timeout: 30,
+        credential_source: "local",
+        credential_group_id: undefined,
+        credentials: {},
+        config: {},
+      });
+    } catch (err) {
+      console.error("Failed to create integration:", err);
+    }
+  };
+
+  const openEditDialog = (integration: DeviceIntegration) => {
+    setEditingIntegration(integration);
+    setEditForm({
+      host_override: integration.host_override || "",
+      port: integration.port,
+      enabled: integration.enabled,
+      verify_ssl: integration.verify_ssl,
+      timeout: integration.timeout,
+      credential_source: integration.credential_source,
+      credential_group_id: integration.credential_group_id,
+      config: integration.config || {},
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditIntegration = async () => {
+    if (!editingIntegration) return;
+    try {
+      await updateIntegration.mutateAsync({
+        deviceId: device.id,
+        integrationId: editingIntegration.id,
+        integration: editForm,
+      });
+      setIsEditDialogOpen(false);
+      setEditingIntegration(null);
+      setEditForm({});
+    } catch (err) {
+      console.error("Failed to update integration:", err);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <TableRow className="bg-gray-850 border-gray-700">
+        <TableCell colSpan={8} className="py-4">
+          <div className="flex items-center justify-center gap-2 text-gray-400">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading integrations...
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  if (error) {
+    return (
+      <TableRow className="bg-gray-850 border-gray-700">
+        <TableCell colSpan={8} className="py-4">
+          <div className="flex items-center justify-center gap-2 text-red-400">
+            <AlertCircle className="w-4 h-4" />
+            Failed to load integrations
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return (
+    <>
+      <TableRow className="bg-gray-850 border-gray-700">
+        <TableCell colSpan={8} className="py-3 px-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <Cable className="w-4 h-4" />
+                Integrations for {device.device_name}
+              </h4>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                  onClick={() => setIsAddDialogOpen(true)}
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add Integration
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-600 text-gray-400 text-xs"
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+
+            {(!integrations || integrations.length === 0) ? (
+              <div className="text-center py-4 text-gray-500">
+                <Cable className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No integrations configured for this device</p>
+                <p className="text-xs mt-1">Click "Add Integration" to connect this device to external services</p>
+              </div>
+            ) : (
+              <div className="rounded-md border border-gray-700 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-gray-700 hover:bg-transparent">
+                      <TableHead className="text-gray-400 text-xs">Provider</TableHead>
+                      <TableHead className="text-gray-400 text-xs">Host</TableHead>
+                      <TableHead className="text-gray-400 text-xs">Port</TableHead>
+                      <TableHead className="text-gray-400 text-xs">Credentials</TableHead>
+                      <TableHead className="text-gray-400 text-xs">Status</TableHead>
+                      <TableHead className="text-gray-400 text-xs">Last Verified</TableHead>
+                      <TableHead className="text-gray-400 text-xs w-[100px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {integrations.map((integration) => (
+                      <TableRow key={integration.id} className="border-gray-700">
+                        <TableCell className="text-white text-sm">
+                          {integration.provider_name || getProviderName(integration.provider_id)}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-sm font-mono">
+                          {integration.host_override || device.primary_address}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-sm font-mono">
+                          {integration.port || "-"}
+                        </TableCell>
+                        <TableCell>
+                          {integration.credential_source === "group" ? (
+                            <span className="flex items-center gap-1 text-xs text-blue-400" title={integration.credential_group_name || "Shared credentials"}>
+                              <Link2 className="w-3 h-3" />
+                              {integration.credential_group_name || "Shared"}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                              <Key className="w-3 h-3" />
+                              Local
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {integration.enabled ? (
+                            integration.is_verified ? (
+                              <Badge className="bg-green-600 text-white text-xs">Verified</Badge>
+                            ) : (
+                              <Badge className="bg-yellow-600 text-white text-xs">Unverified</Badge>
+                            )
+                          ) : (
+                            <Badge variant="secondary" className="bg-gray-600 text-gray-300 text-xs">Disabled</Badge>
+                          )}
+                          {testResult?.id === integration.id && (
+                            <span className={`ml-2 text-xs ${testResult.success ? 'text-green-400' : 'text-red-400'}`}>
+                              {testResult.message}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-gray-400 text-xs">
+                          {integration.last_verified_at ? (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(integration.last_verified_at).toLocaleDateString()}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              onClick={() => openEditDialog(integration)}
+                              title="Edit integration"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              onClick={() => handleTest(integration.id)}
+                              disabled={testingId === integration.id}
+                              title="Test connection"
+                            >
+                              {testingId === integration.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Play className="w-3 h-3" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 text-red-400 hover:text-red-300"
+                              onClick={() => handleDelete(integration.id)}
+                              title="Delete integration"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </TableCell>
+      </TableRow>
+
+      {/* Add Integration Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Integration</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Connect {device.device_name} to an external service
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-gray-300">Provider *</Label>
+              <Select
+                value={integrationForm.provider_id}
+                onValueChange={(value) => setIntegrationForm({ ...integrationForm, provider_id: value })}
+              >
+                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                  <SelectValue placeholder="Select a provider" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
+                  {!providers || providers.length === 0 ? (
+                    <SelectItem value="none" disabled>Loading providers...</SelectItem>
+                  ) : (
+                    providers.map((provider) => (
+                      <SelectItem key={provider.id} value={provider.id} className="text-white">
+                        {provider.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Host Override</Label>
+                <Input
+                  placeholder={device.primary_address}
+                  value={integrationForm.host_override || ""}
+                  onChange={(e) => setIntegrationForm({ ...integrationForm, host_override: e.target.value || undefined })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-300">Port</Label>
+                <Input
+                  type="number"
+                  placeholder="Default"
+                  value={integrationForm.port || ""}
+                  onChange={(e) => setIntegrationForm({ ...integrationForm, port: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 -mt-2">Leave host empty to use device address: {device.primary_address}</p>
+
+            {/* Credentials Section */}
+            <div className="border-t border-gray-700 pt-4 space-y-3">
+              <div className="flex items-center gap-2 text-gray-300">
+                <Key className="w-4 h-4" />
+                <Label className="font-medium">Credentials</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400 text-sm">Credential Source</Label>
+                <Select
+                  value={integrationForm.credential_source || "local"}
+                  onValueChange={(value: CredentialSource) => setIntegrationForm({
+                    ...integrationForm,
+                    credential_source: value,
+                    credential_group_id: value === "local" ? undefined : integrationForm.credential_group_id,
+                    credentials: value === "group" ? {} : integrationForm.credentials,
+                  })}
+                >
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="local" className="text-white">
+                      <span className="flex items-center gap-2">
+                        <Key className="w-3 h-3" />
+                        Local (device-specific)
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="group" className="text-white">
+                      <span className="flex items-center gap-2">
+                        <Link2 className="w-3 h-3" />
+                        Shared (credential group)
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {integrationForm.credential_source === "group" ? (
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Credential Group</Label>
+                  <Select
+                    value={integrationForm.credential_group_id?.toString() || ""}
+                    onValueChange={(value) => setIntegrationForm({
+                      ...integrationForm,
+                      credential_group_id: value ? parseInt(value) : undefined
+                    })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue placeholder="Select a credential group" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      {!credentialGroups || credentialGroups.length === 0 ? (
+                        <SelectItem value="none" disabled>No credential groups available</SelectItem>
+                      ) : (
+                        credentialGroups.map((group) => (
+                          <SelectItem key={group.id} value={group.id.toString()} className="text-white">
+                            <span className="flex items-center gap-2">
+                              {group.name}
+                              <Badge variant="secondary" className="text-xs bg-gray-600">
+                                {group.credential_type}
+                              </Badge>
+                            </span>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-3 bg-gray-750 rounded-md p-3 border border-gray-700">
+                  <div className="space-y-2">
+                    <Label className="text-gray-400 text-sm">Username</Label>
+                    <Input
+                      placeholder="Username or API user"
+                      value={(integrationForm.credentials as Record<string, string>)?.username || ""}
+                      onChange={(e) => setIntegrationForm({
+                        ...integrationForm,
+                        credentials: { ...(integrationForm.credentials || {}), username: e.target.value }
+                      })}
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-400 text-sm">Password / API Key</Label>
+                    <Input
+                      type="password"
+                      placeholder="Password or API key"
+                      value={(integrationForm.credentials as Record<string, string>)?.password || ""}
+                      onChange={(e) => setIntegrationForm({
+                        ...integrationForm,
+                        credentials: { ...(integrationForm.credentials || {}), password: e.target.value }
+                      })}
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 pt-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="enabled"
+                  checked={integrationForm.enabled}
+                  onCheckedChange={(checked) => setIntegrationForm({ ...integrationForm, enabled: !!checked })}
+                />
+                <Label htmlFor="enabled" className="text-gray-300 text-sm">Enabled</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="verify_ssl"
+                  checked={integrationForm.verify_ssl}
+                  onCheckedChange={(checked) => setIntegrationForm({ ...integrationForm, verify_ssl: !!checked })}
+                />
+                <Label htmlFor="verify_ssl" className="text-gray-300 text-sm">Verify SSL</Label>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddDialogOpen(false)}
+              className="border-gray-600 text-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddIntegration}
+              disabled={!integrationForm.provider_id || createIntegration.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {createIntegration.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                "Add Integration"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Integration Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Integration</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              {editingIntegration && (
+                <>Provider: {getProviderName(editingIntegration.provider_id)}</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Host Override</Label>
+                <Input
+                  placeholder={device.primary_address}
+                  value={editForm.host_override || ""}
+                  onChange={(e) => setEditForm({ ...editForm, host_override: e.target.value || undefined })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-300">Port</Label>
+                <Input
+                  type="number"
+                  placeholder="Default"
+                  value={editForm.port || ""}
+                  onChange={(e) => setEditForm({ ...editForm, port: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 -mt-2">Leave host empty to use device address: {device.primary_address}</p>
+
+            <div className="space-y-2">
+              <Label className="text-gray-300">Timeout (seconds)</Label>
+              <Input
+                type="number"
+                value={editForm.timeout || 30}
+                onChange={(e) => setEditForm({ ...editForm, timeout: e.target.value ? parseInt(e.target.value) : 30 })}
+                className="bg-gray-700 border-gray-600 text-white"
+              />
+            </div>
+
+            {/* Credentials Section */}
+            <div className="border-t border-gray-700 pt-4 space-y-3">
+              <div className="flex items-center gap-2 text-gray-300">
+                <Key className="w-4 h-4" />
+                <Label className="font-medium">Credentials</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-400 text-sm">Credential Source</Label>
+                <Select
+                  value={editForm.credential_source || editingIntegration?.credential_source || "local"}
+                  onValueChange={(value: CredentialSource) => setEditForm({
+                    ...editForm,
+                    credential_source: value,
+                    credential_group_id: value === "local" ? undefined : editForm.credential_group_id,
+                  })}
+                >
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="local" className="text-white">
+                      <span className="flex items-center gap-2">
+                        <Key className="w-3 h-3" />
+                        Local (device-specific)
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="group" className="text-white">
+                      <span className="flex items-center gap-2">
+                        <Link2 className="w-3 h-3" />
+                        Shared (credential group)
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(editForm.credential_source || editingIntegration?.credential_source) === "group" ? (
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Credential Group</Label>
+                  <Select
+                    value={(editForm.credential_group_id ?? editingIntegration?.credential_group_id)?.toString() || ""}
+                    onValueChange={(value) => setEditForm({
+                      ...editForm,
+                      credential_group_id: value ? parseInt(value) : undefined
+                    })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue placeholder="Select a credential group" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      {!credentialGroups || credentialGroups.length === 0 ? (
+                        <SelectItem value="none" disabled>No credential groups available</SelectItem>
+                      ) : (
+                        credentialGroups.map((group) => (
+                          <SelectItem key={group.id} value={group.id.toString()} className="text-white">
+                            <span className="flex items-center gap-2">
+                              {group.name}
+                              <Badge variant="secondary" className="text-xs bg-gray-600">
+                                {group.credential_type}
+                              </Badge>
+                            </span>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {editingIntegration?.credential_group_name && (
+                    <p className="text-xs text-gray-500">
+                      Current: {editingIntegration.credential_group_name}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3 bg-gray-750 rounded-md p-3 border border-gray-700">
+                  <p className="text-xs text-gray-400">
+                    Enter new credentials to update, or leave blank to keep existing.
+                  </p>
+                  <div className="space-y-2">
+                    <Label className="text-gray-400 text-sm">Username</Label>
+                    <Input
+                      placeholder="Username or API user"
+                      value={(editForm.credentials as Record<string, string>)?.username || ""}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        credentials: { ...(editForm.credentials || {}), username: e.target.value }
+                      })}
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-400 text-sm">Password / API Key</Label>
+                    <Input
+                      type="password"
+                      placeholder="Password or API key"
+                      value={(editForm.credentials as Record<string, string>)?.password || ""}
+                      onChange={(e) => setEditForm({
+                        ...editForm,
+                        credentials: { ...(editForm.credentials || {}), password: e.target.value }
+                      })}
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 pt-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="edit_enabled"
+                  checked={editForm.enabled}
+                  onCheckedChange={(checked) => setEditForm({ ...editForm, enabled: !!checked })}
+                />
+                <Label htmlFor="edit_enabled" className="text-gray-300 text-sm">Enabled</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="edit_verify_ssl"
+                  checked={editForm.verify_ssl}
+                  onCheckedChange={(checked) => setEditForm({ ...editForm, verify_ssl: !!checked })}
+                />
+                <Label htmlFor="edit_verify_ssl" className="text-gray-300 text-sm">Verify SSL</Label>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setEditingIntegration(null);
+                setEditForm({});
+              }}
+              className="border-gray-600 text-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditIntegration}
+              disabled={updateIntegration.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {updateIntegration.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export default function DevicesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -226,6 +933,7 @@ export default function DevicesPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [expandedDeviceId, setExpandedDeviceId] = useState<number | null>(null);
   const [formData, setFormData] = useState<DeviceCreate>({
     device_name: "",
     device_type: "server",
@@ -550,89 +1258,112 @@ export default function DevicesPage() {
             </TableHeader>
             <TableBody>
               {filteredDevices.map((device) => (
-                <TableRow key={device.id} className="border-gray-700 hover:bg-gray-750">
-                  <TableCell className="text-white font-medium">
-                    <div className="flex items-center gap-2">
-                      {getDeviceIcon(device.device_type)}
-                      {device.device_name}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-300">{device.manufacturer || "-"}</TableCell>
-                  <TableCell className="text-gray-300">{device.model || "-"}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={`${getCategoryColor(device.device_type)} text-white`}
-                    >
-                      {device.device_type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-gray-300 font-mono text-sm">
-                    {device.primary_address}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {(device.location_name || device.location_info) ? (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-gray-500" />
-                        <span>{device.location_name || device.location_info?.name}</span>
-                        {device.location_info?.code && (
-                          <span className="text-xs text-gray-500">({device.location_info.code})</span>
+                <React.Fragment key={device.id}>
+                  <TableRow
+                    className={`border-gray-700 hover:bg-gray-750 cursor-pointer ${expandedDeviceId === device.id ? 'bg-gray-800' : ''}`}
+                    onClick={() => setExpandedDeviceId(expandedDeviceId === device.id ? null : device.id)}
+                  >
+                    <TableCell className="text-white font-medium">
+                      <div className="flex items-center gap-2">
+                        {expandedDeviceId === device.id ? (
+                          <ChevronDown className="w-4 h-4 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
                         )}
+                        {getDeviceIcon(device.device_type)}
+                        {device.device_name}
                       </div>
-                    ) : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {device.is_active ? (
-                      <Badge className="bg-green-600 text-white">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-gray-600 text-gray-300">
-                        Inactive
+                    </TableCell>
+                    <TableCell className="text-gray-300">{device.manufacturer || "-"}</TableCell>
+                    <TableCell className="text-gray-300">{device.model || "-"}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={`${getCategoryColor(device.device_type)} text-white`}
+                      >
+                        {device.device_type}
                       </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
-                        <DropdownMenuItem
-                          onClick={() => openEditDialog(device)}
-                          className="text-gray-300"
-                        >
-                          <Pencil className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggleStatus(device)}
-                          className="text-gray-300"
-                        >
-                          {device.is_active ? (
-                            <>
-                              <PowerOff className="w-4 h-4 mr-2" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <Power className="w-4 h-4 mr-2" />
-                              Activate
-                            </>
+                    </TableCell>
+                    <TableCell className="text-gray-300 font-mono text-sm">
+                      {device.primary_address}
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {(device.location_name || device.location_info) ? (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-gray-500" />
+                          <span>{device.location_name || device.location_info?.name}</span>
+                          {device.location_info?.code && (
+                            <span className="text-xs text-gray-500">({device.location_info.code})</span>
                           )}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-gray-700" />
-                        <DropdownMenuItem
-                          onClick={() => openDeleteDialog(device)}
-                          className="text-red-400"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                        </div>
+                      ) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {device.is_active ? (
+                        <Badge className="bg-green-600 text-white">Active</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-gray-600 text-gray-300">
+                          Inactive
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
+                          <DropdownMenuItem
+                            onClick={() => openEditDialog(device)}
+                            className="text-gray-300"
+                          >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setExpandedDeviceId(device.id)}
+                            className="text-gray-300"
+                          >
+                            <Cable className="w-4 h-4 mr-2" />
+                            View Integrations
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleStatus(device)}
+                            className="text-gray-300"
+                          >
+                            {device.is_active ? (
+                              <>
+                                <PowerOff className="w-4 h-4 mr-2" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <Power className="w-4 h-4 mr-2" />
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-gray-700" />
+                          <DropdownMenuItem
+                            onClick={() => openDeleteDialog(device)}
+                            className="text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                  {expandedDeviceId === device.id && (
+                    <DeviceIntegrationsRow
+                      device={device}
+                      onClose={() => setExpandedDeviceId(null)}
+                    />
+                  )}
+                </React.Fragment>
               ))}
               {filteredDevices.length === 0 && (
                 <TableRow>

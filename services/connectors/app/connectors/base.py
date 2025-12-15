@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional, Callable, Type
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import asyncio
 import logging
 
@@ -31,6 +31,13 @@ class AuthType(str, Enum):
     BEARER = "bearer"
     OAUTH2 = "oauth2"
     OAUTH2_CLIENT_CREDENTIALS = "oauth2_client_credentials"
+    OAUTH1 = "oauth1"
+    JWT = "jwt"
+    TWO_STEP = "two_step"       # Multi-step authentication (e.g., session-based)
+    TBA = "tba"                 # Token-based authentication (e.g., NetSuite)
+    APP = "app"                 # App-based authentication (e.g., GitHub App)
+    SIGNATURE = "signature"     # HMAC/signature-based auth
+    BILL = "bill"               # Bill.com specific auth
     CUSTOM = "custom"
     
 
@@ -40,6 +47,32 @@ class TriggerType(str, Enum):
     POLLING = "polling"           # Scheduled polling for changes
     WEBSOCKET = "websocket"       # Real-time websocket connection
     MANUAL = "manual"             # Manual trigger
+
+
+class ProtocolType(str, Enum):
+    """
+    Protocol types for provider communication.
+
+    Determines how the provider communicates with the external service:
+    - REST: Standard REST/HTTP APIs (most common, uses DeclarativeProvider)
+    - JSON_RPC: JSON-RPC protocol (e.g., Zabbix, Ethereum)
+    - GRAPHQL: GraphQL APIs
+    - SOAP: SOAP/XML web services
+    - GRPC: gRPC protocol
+    - WEBSOCKET: WebSocket-based real-time APIs
+    - NATIVE: Native SDK integration (Python libraries like pyzabbix, twilio-python)
+    - AMI: Asterisk Manager Interface
+    - CUSTOM: Custom protocol implementation
+    """
+    REST = "rest"
+    JSON_RPC = "json_rpc"
+    GRAPHQL = "graphql"
+    SOAP = "soap"
+    GRPC = "grpc"
+    WEBSOCKET = "websocket"
+    NATIVE = "native"
+    AMI = "ami"                   # Asterisk Manager Interface
+    CUSTOM = "custom"
 
 
 class FieldType(str, Enum):
@@ -104,7 +137,7 @@ class ValidationError(ConnectorError):
 class FieldDefinition(BaseModel):
     """Defines a single field for actions/triggers"""
     name: str
-    label: str
+    label: Optional[str] = None             # Auto-generated from name if not provided
     type: FieldType = FieldType.STRING
     description: str = ""
     required: bool = False
@@ -118,6 +151,14 @@ class FieldDefinition(BaseModel):
     max_value: Optional[float] = None
     min_length: Optional[int] = None
     max_length: Optional[int] = None
+
+    @model_validator(mode='after')
+    def set_label_from_name(self) -> 'FieldDefinition':
+        """Auto-generate label from name if not provided"""
+        if self.label is None:
+            # Convert snake_case to Title Case
+            self.label = self.name.replace('_', ' ').title()
+        return self
 
     class Config:
         use_enum_values = True
@@ -195,6 +236,9 @@ class ProviderMetadata(BaseModel):
     categories: List[str] = []              # ["telephony", "sms", "voice"]
     tags: List[str] = []
 
+    # Protocol type - how does this provider communicate?
+    protocol: ProtocolType = ProtocolType.REST
+
     # Auth requirements
     auth_schema: AuthSchemaDefinition
 
@@ -202,6 +246,9 @@ class ProviderMetadata(BaseModel):
     supports_test_connection: bool = True
     supports_webhooks: bool = False
     base_url: Optional[str] = None          # For display/documentation
+
+    class Config:
+        use_enum_values = True
 
 
 # Alias for backward compatibility

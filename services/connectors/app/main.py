@@ -1,12 +1,11 @@
 """
 UCMP Connectors FastAPI Service
 ===============================
-REST API for managing providers, connectors, integrations, and action execution.
+REST API for managing providers, connectors, and action execution.
 
 Terminology:
-- Provider: Template/definition of an external service (e.g., Slack, Twilio)
-- Connector: A configured instance of a provider with credentials
-- Integration: A binding between a device/system and a connector
+- Provider: Template/definition of an external service (e.g., Zabbix, Portainer, Asterisk)
+- Connector: A configured instance of a provider with credentials for a specific device/service
 """
 
 import os
@@ -20,7 +19,6 @@ from app.core.dependencies import init_services, get_registry
 from app.routers import (
     providers_router,
     connectors_router,
-    integrations_router,
     credentials_router,
     execution_router,
 )
@@ -49,7 +47,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="Integration platform for managing providers, connectors, integrations, and executing actions",
+    description="Connector platform for managing providers, connectors, and executing actions",
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
@@ -66,7 +64,6 @@ app.add_middleware(
 # Include routers
 app.include_router(providers_router, prefix=settings.API_PREFIX)
 app.include_router(connectors_router, prefix=settings.API_PREFIX)
-app.include_router(integrations_router, prefix=settings.API_PREFIX)
 app.include_router(credentials_router, prefix=settings.API_PREFIX)
 app.include_router(execution_router, prefix=settings.API_PREFIX)
 

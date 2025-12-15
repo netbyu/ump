@@ -6,7 +6,8 @@ import Link from 'next/link';
 import {
   LayoutDashboard, FileText, Paintbrush, Zap, UserCircle,
   Plug, Settings, ChevronLeft, Shield, Server, BarChart3,
-  Bot, FileImage, Activity, ChevronDown, Workflow, Network, HardDrive, Phone, Layers
+  Bot, FileImage, Activity, ChevronDown, Workflow, Network, HardDrive, Phone, Layers, Cpu,
+  Store, Cable
 } from 'lucide-react';
 import { PageView } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
@@ -29,10 +30,12 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'automation-builder': { resource: 'automation', action: 'update' },
   'agents': { resource: 'agents', action: 'read' },
   'mcp': { resource: 'agents', action: 'read' },
+  'ai-compute': { resource: 'ai', action: 'read' },
   'fax-management': { resource: 'fax', action: 'read' },
   'ivr': { resource: 'ivr', action: 'read' },
   'self-service': null, // Always visible to authenticated users
-  'integrations': { resource: 'integrations', action: 'read' },
+  'providers': { resource: 'integrations', action: 'read' },
+  'connectors': { resource: 'integrations', action: 'read' },
   'devices': { resource: 'devices', action: 'read' },
   'admin': { resource: 'users', action: 'read' },
   'settings': { resource: 'settings', action: 'read' },
@@ -50,10 +53,12 @@ const routeMap: Record<PageView, string> = {
   'automation-builder': '/automation/builder',
   'agents': '/agents',
   'mcp': '/mcp',
+  'ai-compute': '/ai-compute',
   'fax-management': '/fax',
   'ivr': '/ivr',
   'self-service': '/self-service',
-  'integrations': '/integrations',
+  'providers': '/providers',
+  'connectors': '/connectors',
   'devices': '/devices',
   'admin': '/admin',
   'settings': '/settings',
@@ -61,7 +66,7 @@ const routeMap: Record<PageView, string> = {
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [expandedSections, setExpandedSections] = useState<string[]>(['automation', 'ai', 'unified-communication']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['automation', 'ai', 'unified-communication', 'integrations-section']);
   const { hasPermission, permissions } = useAuth();
   const { isFeatureEnabled, features } = useFeatureFlags();
 
@@ -114,6 +119,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       children: [
         { id: 'agents' as PageView, icon: Bot, label: 'Agents' },
         { id: 'mcp' as PageView, icon: Network, label: 'MCP' },
+        { id: 'ai-compute' as PageView, icon: Cpu, label: 'AI Compute' },
       ]
     },
     {
@@ -122,7 +128,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       label: 'Unified Communication',
       isSection: true,
       children: [
-        { id: 'systems' as PageView, icon: Layers, label: 'Systems' },
         { id: 'phone-systems' as PageView, icon: Server, label: 'Phone Systems' },
         { id: 'call-report' as PageView, icon: BarChart3, label: 'Call Report' },
         { id: 'fax-management' as PageView, icon: FileImage, label: 'Fax Management' },
@@ -130,8 +135,18 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       ]
     },
     { id: 'self-service' as PageView, icon: UserCircle, label: 'User Self-Service Portal' },
-    { id: 'integrations' as PageView, icon: Plug, label: 'Integrations' },
-    { id: 'devices' as PageView, icon: HardDrive, label: 'Devices' },
+    {
+      id: 'integrations-section',
+      icon: Plug,
+      label: 'Integrations',
+      isSection: true,
+      children: [
+        { id: 'devices' as PageView, icon: HardDrive, label: 'Devices' },
+        { id: 'systems' as PageView, icon: Layers, label: 'Systems' },
+        { id: 'providers' as PageView, icon: Store, label: 'Providers' },
+        { id: 'connectors' as PageView, icon: Cable, label: 'Connectors' },
+      ]
+    },
     { id: 'admin' as PageView, icon: Shield, label: 'Admin' },
   ];
 

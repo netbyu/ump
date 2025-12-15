@@ -7,16 +7,32 @@ A Provider is a template/definition of an external service.
 """
 
 from typing import List, Optional
+from pathlib import Path as FilePath
 
 from fastapi import APIRouter, HTTPException, Query, Path, Body, Depends
+from pydantic import BaseModel
+import yaml
 
 from app.schemas import ProviderInfo, ProviderDetail, TestConnectionRequest, TestConnectionResponse
 from app.connectors.registry import ProviderRegistry
 from app.connectors.schema import SchemaRegistry
 from app.connectors.base import AuthConfig, AuthType
 from app.core.dependencies import get_registry, get_schema_registry
+from app.core.config import settings
 
 router = APIRouter(prefix="/providers", tags=["Providers"])
+
+
+class CreateProviderRequest(BaseModel):
+    """Request to create a provider from YAML manifest"""
+    manifest_yaml: str
+
+
+class CreateProviderResponse(BaseModel):
+    """Response for provider creation"""
+    id: str
+    name: str
+    message: str
 
 
 @router.get("", response_model=List[ProviderInfo])
@@ -44,6 +60,7 @@ async def list_providers(
             icon_url=meta.icon_url,
             categories=meta.categories,
             tags=meta.tags,
+            protocol=meta.protocol if hasattr(meta, 'protocol') else "rest",
             auth_type=meta.auth_schema.auth_type,
             supports_webhooks=meta.supports_webhooks,
         ))
@@ -111,11 +128,14 @@ async def get_provider(
         icon_url=meta.icon_url,
         categories=meta.categories,
         tags=meta.tags,
+        protocol=meta.protocol if hasattr(meta, 'protocol') else "rest",
         auth_type=meta.auth_schema.auth_type,
         supports_webhooks=meta.supports_webhooks,
         actions=actions,
         triggers=triggers,
         auth_schema=auth_schema,
+        documentation_url=meta.documentation_url,
+        base_url=meta.base_url,
     )
 
 
@@ -171,3 +191,154 @@ async def test_provider_credentials(
         message=result.data.get("message", "Test completed") if result.success else result.error_message or "Test failed",
         details=result.data,
     )
+
+
+@router.post("", response_model=CreateProviderResponse)
+async def create_provider(
+    request: CreateProviderRequest = Body(...),
+    registry: ProviderRegistry = Depends(get_registry),
+):
+    """
+    Create a new provider from a YAML manifest.
+
+    The manifest will be:
+    1. Parsed and validated
+    2. Registered in the provider registry
+    3. Saved to disk in the providers directory
+    """
+    try:
+        # Parse YAML
+        manifest = yaml.safe_load(request.manifest_yaml)
+    except yaml.YAMLError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid YAML: {str(e)}")
+
+    # Validate required fields
+    if not manifest.get("id"):
+        raise HTTPException(status_code=400, detail="Manifest must have an 'id' field")
+    if not manifest.get("name"):
+        raise HTTPException(status_code=400, detail="Manifest must have a 'name' field")
+
+    provider_id = manifest["id"]
+    provider_name = manifest["name"]
+
+    # Check if provider already exists
+    existing = registry.get_metadata(provider_id)
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Provider '{provider_id}' already exists. Use PUT to update."
+        )
+
+    try:
+        # Register the manifest
+        registry.register_manifest(manifest)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to register provider: {str(e)}")
+
+    # Save to disk
+    try:
+        providers_dir = FilePath(settings.PROVIDERS_DIR)
+        if not providers_dir.is_absolute():
+            # Make relative to project root
+            providers_dir = FilePath(__file__).parent.parent.parent / settings.PROVIDERS_DIR
+
+        providers_dir.mkdir(parents=True, exist_ok=True)
+        manifest_path = providers_dir / f"{provider_id}.yaml"
+
+        with open(manifest_path, "w") as f:
+            f.write(request.manifest_yaml)
+    except Exception as e:
+        # Log but don't fail - provider is registered in memory
+        import logging
+        logging.warning(f"Failed to save provider manifest to disk: {e}")
+
+    return CreateProviderResponse(
+        id=provider_id,
+        name=provider_name,
+        message=f"Provider '{provider_name}' created successfully",
+    )
+
+
+@router.put("/{provider_id}", response_model=CreateProviderResponse)
+async def update_provider(
+    provider_id: str = Path(..., description="Provider ID to update"),
+    request: CreateProviderRequest = Body(...),
+    registry: ProviderRegistry = Depends(get_registry),
+):
+    """
+    Update an existing provider's manifest.
+    """
+    try:
+        manifest = yaml.safe_load(request.manifest_yaml)
+    except yaml.YAMLError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid YAML: {str(e)}")
+
+    # Ensure ID matches
+    if manifest.get("id") != provider_id:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Manifest ID '{manifest.get('id')}' doesn't match URL ID '{provider_id}'"
+        )
+
+    provider_name = manifest.get("name", provider_id)
+
+    try:
+        # Re-register (will overwrite)
+        registry.register_manifest(manifest)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to update provider: {str(e)}")
+
+    # Save to disk
+    try:
+        providers_dir = FilePath(settings.PROVIDERS_DIR)
+        if not providers_dir.is_absolute():
+            providers_dir = FilePath(__file__).parent.parent.parent / settings.PROVIDERS_DIR
+
+        manifest_path = providers_dir / f"{provider_id}.yaml"
+        with open(manifest_path, "w") as f:
+            f.write(request.manifest_yaml)
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to save provider manifest to disk: {e}")
+
+    return CreateProviderResponse(
+        id=provider_id,
+        name=provider_name,
+        message=f"Provider '{provider_name}' updated successfully",
+    )
+
+
+@router.delete("/{provider_id}")
+async def delete_provider(
+    provider_id: str = Path(..., description="Provider ID to delete"),
+    registry: ProviderRegistry = Depends(get_registry),
+):
+    """
+    Delete a provider from the catalog.
+
+    Note: Only deletes custom providers (manifest-based). Built-in providers cannot be deleted.
+    """
+    meta = registry.get_metadata(provider_id)
+    if not meta:
+        raise HTTPException(status_code=404, detail=f"Provider not found: {provider_id}")
+
+    # Try to unregister
+    try:
+        registry.unregister(provider_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to unregister provider: {str(e)}")
+
+    # Try to delete from disk
+    try:
+        providers_dir = FilePath(settings.PROVIDERS_DIR)
+        if not providers_dir.is_absolute():
+            providers_dir = FilePath(__file__).parent.parent.parent / settings.PROVIDERS_DIR
+
+        manifest_path = providers_dir / f"{provider_id}.yaml"
+        if manifest_path.exists():
+            manifest_path.unlink()
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to delete provider manifest from disk: {e}")
+
+    return {"message": f"Provider '{provider_id}' deleted successfully"}

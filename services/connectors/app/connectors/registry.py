@@ -77,12 +77,20 @@ class ProviderRegistry:
 
     def _manifest_to_metadata(self, manifest: Dict[str, Any]) -> ProviderMetadata:
         """Convert manifest to ProviderMetadata"""
-        from .base import AuthSchemaDefinition, FieldDefinition, AuthType
+        from .base import AuthSchemaDefinition, FieldDefinition, AuthType, ProtocolType
 
         auth_config = manifest.get("auth", {})
         auth_fields = [
             FieldDefinition(**f) for f in auth_config.get("fields", [])
         ]
+
+        # Parse protocol type from manifest (default to REST)
+        protocol_str = manifest.get("protocol", "rest")
+        try:
+            protocol = ProtocolType(protocol_str)
+        except ValueError:
+            logger.warning(f"Unknown protocol type '{protocol_str}', defaulting to REST")
+            protocol = ProtocolType.REST
 
         return ProviderMetadata(
             id=manifest["id"],
@@ -93,6 +101,7 @@ class ProviderRegistry:
             documentation_url=manifest.get("documentation_url"),
             categories=manifest.get("categories", []),
             tags=manifest.get("tags", []),
+            protocol=protocol,
             auth_schema=AuthSchemaDefinition(
                 auth_type=AuthType(auth_config.get("type", "api_key")),
                 fields=auth_fields,

@@ -10,10 +10,12 @@ export type PageView =
   | "automation-builder"
   | "agents"
   | "mcp"
+  | "ai-compute"
   | "fax-management"
   | "ivr"
   | "self-service"
-  | "integrations"
+  | "providers"
+  | "connectors"
   | "devices"
   | "admin"
   | "settings";
@@ -294,35 +296,142 @@ export interface DeviceGroupMembership {
   notes?: string;
 }
 
+// =============================================================================
+// Credential Group Types (Reusable credentials)
+// =============================================================================
+
+export type CredentialType = "basic" | "api_key" | "oauth" | "ssh_key" | "custom";
+export type CredentialScope = "global" | "location" | "group";
+
+/**
+ * CredentialGroup - Reusable credentials that can be shared across device integrations
+ */
+export interface CredentialGroup {
+  id: number;
+  name: string;
+  description?: string;
+  credential_type: CredentialType;
+
+  // Display metadata (non-sensitive)
+  username?: string; // For basic auth display
+  key_hint?: string; // Last 4 chars of API key
+
+  // Scope and access
+  scope: CredentialScope;
+  scope_id?: number; // location_id or group_id if scoped
+
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  updated_by?: string;
+
+  // Usage count (from API)
+  usage_count?: number;
+}
+
+export interface CredentialGroupCreate {
+  name: string;
+  description?: string;
+  credential_type: CredentialType;
+  credentials: Record<string, string>; // The actual credentials to encrypt
+  scope?: CredentialScope;
+  scope_id?: number;
+}
+
+export interface CredentialGroupUpdate {
+  name?: string;
+  description?: string;
+  credentials?: Record<string, string>; // Only if updating credentials
+  scope?: CredentialScope;
+  scope_id?: number;
+  is_active?: boolean;
+}
+
+// =============================================================================
+// Device Integration Types
+// =============================================================================
+
+export type CredentialSource = "local" | "group";
+
+/**
+ * DeviceIntegration - Links a Device directly to a Provider
+ *
+ * Simplified architecture: Device -> Provider (no Connector intermediary)
+ * Inherits host from device.primary_address by default.
+ *
+ * Credentials can be:
+ * - Local: stored directly on the integration
+ * - Group: reference to a shared CredentialGroup
+ */
 export interface DeviceIntegration {
   id: number;
   device_id: number;
-  integration_id?: number;
-  host?: string;
+  provider_id: string; // Provider ID from connectors service catalog
+
+  // Connection settings (null = inherit from device/provider defaults)
+  host_override?: string; // If null, use device.primary_address
   port?: number;
   base_url?: string;
+
+  // Provider-specific configuration (based on provider's config schema)
+  config?: Record<string, unknown>;
+
+  // Credential source
+  credential_source: CredentialSource;
+  credential_group_id?: number; // If credential_source='group'
+
+  // Local credential metadata (only when credential_source='local')
+  // Note: actual credentials are encrypted, only metadata shown
+  credential_username?: string;
+  credential_type?: CredentialType;
+
+  // Config
   enabled: boolean;
   verify_ssl: boolean;
   timeout: number;
-  config_extra?: Record<string, unknown>;
+
+  // Status
+  is_verified: boolean;
+  last_verified_at?: string;
+  last_error?: string;
+
   created_at: string;
   updated_at: string;
-  // Relationships
-  credentials?: DeviceCredential[];
-  ssh_config?: DeviceSSHConfig;
+
+  // Denormalized (from API joins)
+  device_name?: string;
+  device_address?: string;
+  provider_name?: string;
+  provider_category?: string;
+  credential_group_name?: string;
 }
 
-export type CredentialType = "basic" | "api_key" | "oauth" | "ssh_key";
+export interface DeviceIntegrationCreate {
+  provider_id: string;
+  host_override?: string;
+  port?: number;
+  base_url?: string;
+  config?: Record<string, unknown>; // Provider-specific config
+  credential_source?: CredentialSource;
+  credential_group_id?: number; // If using shared credentials
+  credentials?: Record<string, string>; // If using local credentials
+  enabled?: boolean;
+  verify_ssl?: boolean;
+  timeout?: number;
+}
 
-export interface DeviceCredential {
-  id: number;
-  device_integration_id: number;
-  credential_type: CredentialType;
-  username?: string;
-  // Note: encrypted fields are not exposed to frontend
-  client_id?: string;
-  created_at: string;
-  updated_at: string;
+export interface DeviceIntegrationUpdate {
+  host_override?: string;
+  port?: number;
+  base_url?: string;
+  config?: Record<string, unknown>;
+  credential_source?: CredentialSource;
+  credential_group_id?: number;
+  credentials?: Record<string, string>;
+  enabled?: boolean;
+  verify_ssl?: boolean;
+  timeout?: number;
 }
 
 export interface DeviceSSHConfig {
@@ -364,4 +473,142 @@ export interface DeviceFilters {
   location_id?: number;
   is_active?: boolean;
   search?: string;
+}
+
+// =============================================================================
+// Provider & Connector Types (Connectors Service)
+// =============================================================================
+
+/**
+ * Provider - Template/definition of an external service (e.g., Zabbix, Portainer, Asterisk)
+ * Defines how to connect to a type of service
+ */
+export interface Provider {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  icon_url?: string;
+  categories: string[];
+  tags: string[];
+  protocol: ProtocolType;
+  auth_type: string;
+  supports_webhooks: boolean;
+}
+
+/**
+ * Protocol types for provider communication
+ */
+export type ProtocolType =
+  | "rest"
+  | "json_rpc"
+  | "graphql"
+  | "soap"
+  | "grpc"
+  | "websocket"
+  | "native"
+  | "ami"
+  | "custom";
+
+export interface ProviderAuthSchema {
+  auth_type: string;
+  fields: ProviderField[];
+  oauth2_config?: Record<string, unknown>;
+}
+
+export interface ProviderDetail extends Provider {
+  actions: ProviderAction[];
+  triggers: ProviderTrigger[];
+  auth_schema: ProviderAuthSchema;
+  documentation_url?: string;
+  base_url?: string;
+}
+
+export interface ProviderAction {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+  inputs: ProviderField[];
+  outputs: ProviderField[];
+  is_idempotent: boolean;
+}
+
+export interface ProviderTrigger {
+  id: string;
+  name: string;
+  description: string;
+  trigger_type: "polling" | "webhook" | "event";
+  outputs: ProviderField[];
+  config_fields: ProviderField[];
+}
+
+export interface ProviderField {
+  name: string;
+  type: string;
+  label: string;
+  description?: string;
+  required: boolean;
+  default?: unknown;
+  options?: { value: string; label: string }[];
+  placeholder?: string;
+  secret?: boolean;
+}
+
+export interface ProviderFilters {
+  category?: string;
+  search?: string;
+  auth_type?: string;
+}
+
+/**
+ * Connector - A configured instance of a provider with stored credentials
+ * Represents a connection to a specific device/service
+ */
+export interface Connector {
+  id: string;
+  name: string;
+  provider_id: string;
+  description: string;
+  is_active: boolean;
+  is_verified: boolean;
+  last_verified_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  // Denormalized provider info
+  provider_name?: string;
+  provider_icon_url?: string;
+}
+
+export interface ConnectorCreate {
+  name: string;
+  provider_id: string;
+  description?: string;
+  credentials: Record<string, unknown>;
+  config?: Record<string, unknown>;
+}
+
+export interface ConnectorUpdate {
+  name?: string;
+  description?: string;
+  credentials?: Record<string, unknown>;
+  config?: Record<string, unknown>;
+  is_active?: boolean;
+}
+
+export interface ConnectorFilters {
+  provider_id?: string;
+  is_active?: boolean;
+  search?: string;
+}
+
+export interface ConnectorList {
+  items: Connector[];
+  total: number;
+}
+
+export interface TestConnectionResponse {
+  success: boolean;
+  message: string;
+  details: Record<string, unknown>;
 }

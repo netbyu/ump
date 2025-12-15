@@ -17,6 +17,8 @@ echo -e "${YELLOW}Cleaning up existing processes...${NC}"
 lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 lsof -ti:8000 | xargs kill -9 2>/dev/null || true
 lsof -ti:8001 | xargs kill -9 2>/dev/null || true
+lsof -ti:8002 | xargs kill -9 2>/dev/null || true
+lsof -ti:8003 | xargs kill -9 2>/dev/null || true
 
 # Start RBAC service (port 8000)
 echo -e "${GREEN}Starting RBAC service on port 8000...${NC}"
@@ -46,6 +48,34 @@ uvicorn main:app --reload --port 8001 &
 API_PID=$!
 cd ../..
 
+# Start AI Compute API (port 8002)
+echo -e "${GREEN}Starting AI Compute API on port 8002...${NC}"
+cd services/ai/api
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+else
+    source venv/bin/activate
+fi
+uvicorn app.main:app --reload --port 8002 &
+AI_API_PID=$!
+cd ../../..
+
+# Start Connectors service (port 8003)
+echo -e "${GREEN}Starting Connectors service on port 8003...${NC}"
+cd services/connectors
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+else
+    source venv/bin/activate
+fi
+uvicorn app.main:app --reload --port 8003 &
+CONNECTORS_PID=$!
+cd ../..
+
 # Start Next.js frontend
 echo -e "${GREEN}Starting Next.js frontend on port 3000...${NC}"
 cd apps/web
@@ -57,12 +87,14 @@ WEB_PID=$!
 cd ../..
 
 echo -e "${GREEN}All services started!${NC}"
-echo -e "  Frontend: http://localhost:3000"
-echo -e "  RBAC:     http://localhost:8000/docs"
-echo -e "  API:      http://localhost:8001/docs"
+echo -e "  Frontend:    http://localhost:3000"
+echo -e "  RBAC:        http://localhost:8000/docs"
+echo -e "  API:         http://localhost:8001/docs"
+echo -e "  AI Compute:  http://localhost:8002/docs"
+echo -e "  Connectors:  http://localhost:8003/docs"
 echo ""
 echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 
 # Wait and cleanup on exit
-trap "kill $API_PID $RBAC_PID $WEB_PID 2>/dev/null; exit" SIGINT SIGTERM
+trap "kill $API_PID $RBAC_PID $AI_API_PID $CONNECTORS_PID $WEB_PID 2>/dev/null; exit" SIGINT SIGTERM
 wait

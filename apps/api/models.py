@@ -345,28 +345,97 @@ class DeviceGroupMembership(Base):
     group = relationship("DeviceGroup", back_populates="memberships")
 
 
+class CredentialGroup(Base):
+    """
+    Reusable credential groups that can be shared across multiple device integrations.
+    Credentials are stored encrypted in the database.
+    """
+    __tablename__ = "credential_groups"
+    __table_args__ = {"schema": "devices"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    credential_type = Column(String(50), nullable=False)  # basic, api_key, oauth, ssh_key, custom
+
+    # Encrypted credential storage (JSONB encrypted at application level)
+    credentials_encrypted = Column(BYTEA)  # Encrypted JSON blob
+
+    # Metadata (non-sensitive, for display)
+    username = Column(String(255))  # Display only, actual password encrypted
+    key_hint = Column(String(50))  # Last 4 chars of API key for identification
+
+    # Scope and access control
+    scope = Column(String(50), default="global")  # global, location, group
+    scope_id = Column(Integer)  # location_id or group_id if scoped
+
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_by = Column(String)
+    updated_by = Column(String)
+
+    # Relationships
+    integrations = relationship("DeviceIntegration", back_populates="credential_group")
+
+
 class DeviceIntegration(Base):
-    """Connection configuration for devices"""
+    """
+    Connection configuration linking a Device directly to a Provider.
+
+    Simplified architecture: Device -> Provider (no Connector intermediary)
+    Inherits host from device.primary_address by default.
+
+    Credentials can be:
+    - Local: stored directly on integration (credentials field)
+    - Shared: reference to a CredentialGroup (credential_group_id)
+    """
     __tablename__ = "device_integrations"
     __table_args__ = {"schema": "devices"}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     device_id = Column(Integer, ForeignKey("devices.devices.id"))
-    integration_id = Column(Integer)  # Reference to integrations schema
-    host = Column(String)
+
+    # Link directly to Provider (from connectors service catalog)
+    provider_id = Column(String(100))  # Provider ID from connectors service
+
+    # Connection settings (null = inherit from device/provider defaults)
+    host_override = Column(String(255))  # If null, use device.primary_address
     port = Column(Integer)
-    base_url = Column(String)
+    base_url = Column(String(500))
+
+    # Provider-specific configuration (based on provider's config schema)
+    # e.g., {"api_version": "v2", "timeout_multiplier": 2, "custom_headers": {...}}
+    config = Column(JSONB, default={})
+
+    # Credential source: 'local' or 'group'
+    credential_source = Column(String(20), default="local")  # local, group
+
+    # Local credentials (used when credential_source='local')
+    # Stored encrypted at application level
+    credentials_encrypted = Column(BYTEA)
+
+    # Shared credentials (used when credential_source='group')
+    credential_group_id = Column(Integer, ForeignKey("devices.credential_groups.id"))
+
+    # Config
     enabled = Column(Boolean, default=True)
     verify_ssl = Column(Boolean, default=True)
     timeout = Column(Integer, default=30)
-    config_extra = Column(JSONB, default={})
+
+    # Status tracking
+    is_verified = Column(Boolean, default=False)
+    last_verified_at = Column(DateTime(timezone=True))
+    last_error = Column(Text)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
     device = relationship("Device", back_populates="integrations")
-    credentials = relationship("DeviceCredential", back_populates="device_integration")
+    credential_group = relationship("CredentialGroup", back_populates="integrations")
     ssh_config = relationship("DeviceSSHConfig", back_populates="device_integration", uselist=False)
+    credential_records = relationship("DeviceCredential", back_populates="device_integration")
 
 
 class DeviceCredential(Base):
@@ -388,7 +457,7 @@ class DeviceCredential(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    device_integration = relationship("DeviceIntegration", back_populates="credentials")
+    device_integration = relationship("DeviceIntegration", back_populates="credential_records", foreign_keys=[device_integration_id])
 
 
 class DeviceSSHConfig(Base):

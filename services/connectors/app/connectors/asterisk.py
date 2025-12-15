@@ -10,8 +10,8 @@ import logging
 from datetime import datetime
 
 from .base import (
-    ConnectorBase,
-    ConnectorMetadata,
+    ProviderBase,
+    ProviderMetadata,
     AuthConfig,
     AuthType,
     AuthSchemaDefinition,
@@ -20,12 +20,12 @@ from .base import (
     TriggerType,
     FieldDefinition,
     FieldType,
+    ProtocolType,
     ExecutionContext,
     ExecutionResult,
     AuthenticationError,
-    ConnectorError,
 )
-from .registry import register_connector
+from .registry import register_provider
 
 logger = logging.getLogger(__name__)
 
@@ -161,35 +161,39 @@ class AMIProtocol:
         return events
 
 
-@register_connector
-class AsteriskAMIConnector(ConnectorBase):
+@register_provider
+class AsteriskAMIConnector(ProviderBase):
     """
-    Asterisk PBX connector via AMI.
-    
+    Asterisk PBX connector via AMI (Asterisk Manager Interface).
+
+    Uses native AMI protocol (TCP socket with text-based commands).
+
     Supports:
     - Originate calls
     - Get channel status
-    - Get SIP peer status
+    - Get SIP/PJSIP peer status
     - Get queue status
     - Execute CLI commands
     - Monitor CDR events
+    - Queue member management
     """
-    
+
     def __init__(self, auth_config: Optional[AuthConfig] = None):
         super().__init__(auth_config)
         self._ami: Optional[AMIProtocol] = None
-    
+
     @classmethod
-    def get_metadata(cls) -> ConnectorMetadata:
-        return ConnectorMetadata(
+    def get_metadata(cls) -> ProviderMetadata:
+        return ProviderMetadata(
             id="asterisk_ami",
             name="Asterisk AMI",
-            description="Connect to Asterisk PBX via AMI (Asterisk Manager Interface)",
+            description="Connect to Asterisk PBX via AMI (Asterisk Manager Interface) for telephony automation",
             version="1.0.0",
-            icon_url=None,
+            icon_url="https://www.asterisk.org/wp-content/uploads/2022/04/asterisk-icon-150x150.png",
             documentation_url="https://wiki.asterisk.org/wiki/display/AST/AMI",
             categories=["telephony", "pbx", "voip"],
-            tags=["asterisk", "pbx", "sip", "voip", "call-center"],
+            tags=["asterisk", "pbx", "sip", "voip", "call-center", "ivr", "queue"],
+            protocol=ProtocolType.AMI,
             auth_schema=AuthSchemaDefinition(
                 auth_type=AuthType.CUSTOM,
                 fields=[
@@ -575,23 +579,46 @@ class AsteriskAMIConnector(ConnectorBase):
         """Connect and authenticate with AMI"""
         if not self.auth_config:
             raise AuthenticationError("No authentication config provided")
-        
+
         creds = self.auth_config.credentials
         host = creds.get("host")
         port = creds.get("port", 5038)
         username = creds.get("username")
         secret = creds.get("secret")
-        
+
         if not all([host, username, secret]):
             raise AuthenticationError("Host, username, and secret are required")
-        
+
         self._ami = AMIProtocol(host, port)
         await self._ami.connect()
         await self._ami.login(username, secret)
-        
+
         self._authenticated = True
         return True
-    
+
+    async def test_connection(self) -> ExecutionResult:
+        """Test connection to Asterisk AMI"""
+        try:
+            await self.authenticate()
+
+            # Get core status to verify connection
+            response = await self._ami.send_action("CoreStatus")
+
+            return ExecutionResult(
+                success=True,
+                data={
+                    "message": "Connection successful",
+                    "asterisk_version": response.get("CoreVersion", "Unknown"),
+                    "startup_time": response.get("CoreStartupTime"),
+                    "reload_time": response.get("CoreReloadTime"),
+                    "host": self.auth_config.credentials.get("host"),
+                }
+            )
+        except AuthenticationError as e:
+            return ExecutionResult(success=False, error_message=str(e), error_code="AUTH_FAILED")
+        except Exception as e:
+            return ExecutionResult(success=False, error_message=str(e), error_code="CONNECTION_ERROR")
+
     async def execute_action(
         self,
         action_id: str,

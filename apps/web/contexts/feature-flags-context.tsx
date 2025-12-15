@@ -85,6 +85,13 @@ const DEFAULT_FEATURES: Record<string, FeatureConfig> = {
     enabled: true,
     category: "ai",
   },
+  "ai-compute": {
+    id: "ai-compute",
+    name: "AI Compute",
+    description: "AWS Spot GPU instances for LLM testing",
+    enabled: true,
+    category: "ai",
+  },
   "fax-management": {
     id: "fax-management",
     name: "Fax Management",
@@ -106,10 +113,17 @@ const DEFAULT_FEATURES: Record<string, FeatureConfig> = {
     enabled: true,
     category: "core",
   },
-  integrations: {
-    id: "integrations",
-    name: "Integrations",
-    description: "Third-party service integrations",
+  providers: {
+    id: "providers",
+    name: "Providers",
+    description: "Provider catalog - templates for external services",
+    enabled: true,
+    category: "core",
+  },
+  connectors: {
+    id: "connectors",
+    name: "Connectors",
+    description: "Configured connections to external services",
     enabled: true,
     category: "core",
   },

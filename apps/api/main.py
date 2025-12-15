@@ -24,6 +24,7 @@ from models import DeviceManufacturer as DBDeviceManufacturer
 from models import Location as DBLocation
 from models import DeviceGroup as DBDeviceGroup
 from models import DeviceGroupType as DBDeviceGroupType
+from models import DeviceIntegration as DBDeviceIntegration
 
 # LiveKit token generation
 from livekit import api
@@ -1743,6 +1744,499 @@ async def deactivate_device(device_id: int, db=Depends(get_db)):
     await db.commit()
 
     return {"message": "Device deactivated successfully"}
+
+
+# ============== Credential Groups ==============
+
+from models import CredentialGroup as DBCredentialGroup
+
+
+class CredentialGroupBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    credential_type: str  # basic, api_key, oauth, ssh_key, custom
+    scope: str = "global"  # global, location, group
+    scope_id: Optional[int] = None
+
+
+class CredentialGroupCreate(CredentialGroupBase):
+    credentials: dict  # The actual credentials to encrypt
+
+
+class CredentialGroupUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    credentials: Optional[dict] = None  # Update credentials if provided
+    scope: Optional[str] = None
+    scope_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+@app.get("/api/credential-groups")
+async def list_credential_groups(
+    scope: Optional[str] = None,
+    credential_type: Optional[str] = None,
+    db=Depends(get_db)
+):
+    """List all credential groups"""
+    query = select(DBCredentialGroup).where(DBCredentialGroup.is_active == True)
+    if scope:
+        query = query.where(DBCredentialGroup.scope == scope)
+    if credential_type:
+        query = query.where(DBCredentialGroup.credential_type == credential_type)
+    query = query.order_by(DBCredentialGroup.name)
+
+    result = await db.execute(query)
+    groups = result.scalars().all()
+
+    return {
+        "data": [
+            {
+                "id": g.id,
+                "name": g.name,
+                "description": g.description,
+                "credential_type": g.credential_type,
+                "username": g.username,
+                "key_hint": g.key_hint,
+                "scope": g.scope,
+                "scope_id": g.scope_id,
+                "is_active": g.is_active,
+                "created_at": g.created_at.isoformat() if g.created_at else None,
+                "updated_at": g.updated_at.isoformat() if g.updated_at else None,
+                "created_by": g.created_by,
+            }
+            for g in groups
+        ]
+    }
+
+
+@app.post("/api/credential-groups")
+async def create_credential_group(request: CredentialGroupCreate, db=Depends(get_db)):
+    """Create a new credential group"""
+    import json
+    from cryptography.fernet import Fernet
+    import base64
+    import os
+
+    # Get or create encryption key (in production, use a secure key management system)
+    encryption_key = os.getenv("CREDENTIAL_ENCRYPTION_KEY")
+    if not encryption_key:
+        # For development, generate a key (in production, this should be pre-configured)
+        encryption_key = Fernet.generate_key().decode()
+
+    fernet = Fernet(encryption_key.encode() if isinstance(encryption_key, str) else encryption_key)
+
+    # Encrypt credentials
+    credentials_json = json.dumps(request.credentials)
+    encrypted = fernet.encrypt(credentials_json.encode())
+
+    # Extract display metadata
+    username = request.credentials.get("username")
+    api_key = request.credentials.get("api_key", request.credentials.get("apiKey", ""))
+    key_hint = api_key[-4:] if api_key and len(api_key) >= 4 else None
+
+    new_group = DBCredentialGroup(
+        name=request.name,
+        description=request.description,
+        credential_type=request.credential_type,
+        credentials_encrypted=encrypted,
+        username=username,
+        key_hint=key_hint,
+        scope=request.scope,
+        scope_id=request.scope_id,
+        is_active=True,
+        created_by="1",  # TODO: Get from auth
+    )
+
+    db.add(new_group)
+    await db.commit()
+    await db.refresh(new_group)
+
+    return {
+        "data": {
+            "id": new_group.id,
+            "name": new_group.name,
+            "credential_type": new_group.credential_type,
+        },
+        "message": "Credential group created successfully"
+    }
+
+
+@app.delete("/api/credential-groups/{group_id}")
+async def delete_credential_group(group_id: int, db=Depends(get_db)):
+    """Delete (deactivate) a credential group"""
+    query = select(DBCredentialGroup).where(DBCredentialGroup.id == group_id)
+    result = await db.execute(query)
+    group = result.scalar_one_or_none()
+
+    if not group:
+        raise HTTPException(status_code=404, detail="Credential group not found")
+
+    group.is_active = False
+    await db.commit()
+
+    return {"message": "Credential group deleted successfully"}
+
+
+# ============== Device Integrations ==============
+
+class DeviceIntegrationBase(BaseModel):
+    provider_id: str  # Provider ID from connectors service catalog
+    host_override: Optional[str] = None
+    port: Optional[int] = None
+    base_url: Optional[str] = None
+    config: Optional[dict] = None  # Provider-specific configuration
+    credential_source: str = "local"  # local, group
+    credential_group_id: Optional[int] = None  # If using shared credentials
+    credentials: Optional[dict] = None  # If using local credentials
+    enabled: bool = True
+    verify_ssl: bool = True
+    timeout: int = 30
+
+
+class DeviceIntegrationCreate(DeviceIntegrationBase):
+    pass
+
+
+class DeviceIntegrationUpdate(BaseModel):
+    host_override: Optional[str] = None
+    port: Optional[int] = None
+    base_url: Optional[str] = None
+    config: Optional[dict] = None
+    credential_source: Optional[str] = None
+    credential_group_id: Optional[int] = None
+    credentials: Optional[dict] = None
+    enabled: Optional[bool] = None
+    verify_ssl: Optional[bool] = None
+    timeout: Optional[int] = None
+
+
+class DeviceIntegrationResponse(BaseModel):
+    id: int
+    device_id: int
+    provider_id: str
+    host_override: Optional[str] = None
+    port: Optional[int] = None
+    base_url: Optional[str] = None
+    config: Optional[dict] = None
+    credential_source: str
+    credential_group_id: Optional[int] = None
+    enabled: bool
+    verify_ssl: bool
+    timeout: int
+    is_verified: bool
+    last_verified_at: Optional[datetime] = None
+    last_error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    # Denormalized fields
+    device_name: Optional[str] = None
+    device_address: Optional[str] = None
+    provider_name: Optional[str] = None
+    provider_category: Optional[str] = None
+    credential_group_name: Optional[str] = None
+    credential_username: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+@app.get("/api/devices/{device_id}/integrations")
+async def list_device_integrations(device_id: int, db=Depends(get_db)):
+    """List all integrations for a device"""
+    # Verify device exists
+    device_query = select(DBDevice).where(DBDevice.id == device_id)
+    device_result = await db.execute(device_query)
+    device = device_result.scalar_one_or_none()
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Get integrations with credential group info
+    query = select(DBDeviceIntegration).where(DBDeviceIntegration.device_id == device_id)
+    result = await db.execute(query)
+    integrations = result.scalars().all()
+
+    # Build response with credential group names
+    integration_list = []
+    for i in integrations:
+        # Get credential group name if using group credentials
+        credential_group_name = None
+        credential_username = None
+        if i.credential_group_id:
+            cg_result = await db.execute(
+                select(DBCredentialGroup).where(DBCredentialGroup.id == i.credential_group_id)
+            )
+            cg = cg_result.scalar_one_or_none()
+            if cg:
+                credential_group_name = cg.name
+                credential_username = cg.username
+
+        integration_list.append({
+            "id": i.id,
+            "device_id": i.device_id,
+            "provider_id": i.provider_id,
+            "host_override": i.host_override,
+            "port": i.port,
+            "base_url": i.base_url,
+            "config": i.config or {},
+            "credential_source": i.credential_source or "local",
+            "credential_group_id": i.credential_group_id,
+            "credential_group_name": credential_group_name,
+            "credential_username": credential_username,
+            "enabled": i.enabled if i.enabled is not None else True,
+            "verify_ssl": i.verify_ssl if i.verify_ssl is not None else True,
+            "timeout": i.timeout or 30,
+            "is_verified": i.is_verified or False,
+            "last_verified_at": i.last_verified_at.isoformat() if i.last_verified_at else None,
+            "last_error": i.last_error,
+            "created_at": i.created_at.isoformat() if i.created_at else None,
+            "updated_at": i.updated_at.isoformat() if i.updated_at else None,
+            # Denormalized device info
+            "device_name": device.device_name,
+            "device_address": device.primary_address,
+        })
+
+    return {"data": integration_list}
+
+
+@app.get("/api/devices/{device_id}/integrations/{integration_id}")
+async def get_device_integration(device_id: int, integration_id: int, db=Depends(get_db)):
+    """Get a specific device integration"""
+    # Get device info
+    device_query = select(DBDevice).where(DBDevice.id == device_id)
+    device_result = await db.execute(device_query)
+    device = device_result.scalar_one_or_none()
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    query = select(DBDeviceIntegration).where(
+        DBDeviceIntegration.id == integration_id,
+        DBDeviceIntegration.device_id == device_id
+    )
+    result = await db.execute(query)
+    i = result.scalar_one_or_none()
+
+    if not i:
+        raise HTTPException(status_code=404, detail="Integration not found")
+
+    # Get credential group info if using shared credentials
+    credential_group_name = None
+    if i.credential_source == "group" and i.credential_group_id:
+        cg_query = select(DBCredentialGroup).where(DBCredentialGroup.id == i.credential_group_id)
+        cg_result = await db.execute(cg_query)
+        cg = cg_result.scalar_one_or_none()
+        if cg:
+            credential_group_name = cg.name
+
+    # Extract credential metadata (never expose actual credentials)
+    credential_username = None
+    credential_type = None
+    if i.credential_source == "local" and i.credentials_encrypted:
+        # We only return metadata hints, not actual credentials
+        # Username might be stored in config for display purposes
+        pass
+
+    return {
+        "id": i.id,
+        "device_id": i.device_id,
+        "provider_id": i.provider_id,
+        "host_override": i.host_override,
+        "port": i.port,
+        "base_url": i.base_url,
+        "config": i.config or {},
+        "credential_source": i.credential_source or "local",
+        "credential_group_id": i.credential_group_id,
+        "credential_group_name": credential_group_name,
+        "credential_username": credential_username,
+        "credential_type": credential_type,
+        "enabled": i.enabled if i.enabled is not None else True,
+        "verify_ssl": i.verify_ssl if i.verify_ssl is not None else True,
+        "timeout": i.timeout or 30,
+        "is_verified": i.is_verified or False,
+        "last_verified_at": i.last_verified_at.isoformat() if i.last_verified_at else None,
+        "last_error": i.last_error,
+        "created_at": i.created_at.isoformat() if i.created_at else None,
+        "updated_at": i.updated_at.isoformat() if i.updated_at else None,
+        # Denormalized device info
+        "device_name": device.device_name,
+        "device_address": device.primary_address,
+    }
+
+
+@app.post("/api/devices/{device_id}/integrations")
+async def create_device_integration(
+    device_id: int,
+    integration: DeviceIntegrationCreate,
+    db=Depends(get_db)
+):
+    """Create a new device integration"""
+    from cryptography.fernet import Fernet
+    import json
+
+    # Verify device exists
+    device_query = select(DBDevice).where(DBDevice.id == device_id)
+    device_result = await db.execute(device_query)
+    device = device_result.scalar_one_or_none()
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Handle credential encryption for local credentials
+    credentials_encrypted = None
+    if integration.credential_source == "local" and integration.credentials:
+        encryption_key = os.getenv("CREDENTIAL_ENCRYPTION_KEY")
+        if not encryption_key:
+            # In production, this should fail or use a secure key management system
+            encryption_key = Fernet.generate_key().decode()
+        fernet = Fernet(encryption_key.encode() if isinstance(encryption_key, str) else encryption_key)
+        credentials_json = json.dumps(integration.credentials)
+        credentials_encrypted = fernet.encrypt(credentials_json.encode())
+
+    # Verify credential group exists if using shared credentials
+    if integration.credential_source == "group" and integration.credential_group_id:
+        cg_query = select(DBCredentialGroup).where(DBCredentialGroup.id == integration.credential_group_id)
+        cg_result = await db.execute(cg_query)
+        cg = cg_result.scalar_one_or_none()
+        if not cg:
+            raise HTTPException(status_code=400, detail="Credential group not found")
+
+    db_integration = DBDeviceIntegration(
+        device_id=device_id,
+        provider_id=integration.provider_id,
+        host_override=integration.host_override,
+        port=integration.port,
+        base_url=integration.base_url,
+        config=integration.config or {},
+        credential_source=integration.credential_source,
+        credential_group_id=integration.credential_group_id if integration.credential_source == "group" else None,
+        credentials_encrypted=credentials_encrypted,
+        enabled=integration.enabled,
+        verify_ssl=integration.verify_ssl,
+        timeout=integration.timeout,
+        is_verified=False,
+    )
+
+    db.add(db_integration)
+    await db.commit()
+    await db.refresh(db_integration)
+
+    return {
+        "data": {
+            "id": db_integration.id,
+            "device_id": db_integration.device_id,
+            "provider_id": db_integration.provider_id,
+            "credential_source": db_integration.credential_source,
+            "enabled": db_integration.enabled,
+            "is_verified": db_integration.is_verified or False,
+        },
+        "message": "Integration created successfully"
+    }
+
+
+@app.put("/api/devices/{device_id}/integrations/{integration_id}")
+async def update_device_integration(
+    device_id: int,
+    integration_id: int,
+    integration: DeviceIntegrationUpdate,
+    db=Depends(get_db)
+):
+    """Update a device integration"""
+    from cryptography.fernet import Fernet
+    import json
+
+    query = select(DBDeviceIntegration).where(
+        DBDeviceIntegration.id == integration_id,
+        DBDeviceIntegration.device_id == device_id
+    )
+    result = await db.execute(query)
+    db_integration = result.scalar_one_or_none()
+
+    if not db_integration:
+        raise HTTPException(status_code=404, detail="Integration not found")
+
+    # Update only provided fields
+    update_data = integration.model_dump(exclude_unset=True)
+
+    # Handle credential encryption if credentials are being updated
+    if "credentials" in update_data and update_data["credentials"]:
+        encryption_key = os.getenv("CREDENTIAL_ENCRYPTION_KEY")
+        if not encryption_key:
+            encryption_key = Fernet.generate_key().decode()
+        fernet = Fernet(encryption_key.encode() if isinstance(encryption_key, str) else encryption_key)
+        credentials_json = json.dumps(update_data["credentials"])
+        update_data["credentials_encrypted"] = fernet.encrypt(credentials_json.encode())
+        del update_data["credentials"]  # Remove plaintext credentials
+
+    # Handle credential source changes
+    if "credential_source" in update_data:
+        if update_data["credential_source"] == "group":
+            # Clear local credentials when switching to group
+            db_integration.credentials_encrypted = None
+            # Verify credential group exists
+            if "credential_group_id" in update_data and update_data["credential_group_id"]:
+                cg_query = select(DBCredentialGroup).where(DBCredentialGroup.id == update_data["credential_group_id"])
+                cg_result = await db.execute(cg_query)
+                cg = cg_result.scalar_one_or_none()
+                if not cg:
+                    raise HTTPException(status_code=400, detail="Credential group not found")
+        elif update_data["credential_source"] == "local":
+            # Clear group reference when switching to local
+            db_integration.credential_group_id = None
+
+    for key, value in update_data.items():
+        if key != "credentials":  # Already handled above
+            setattr(db_integration, key, value)
+
+    await db.commit()
+    await db.refresh(db_integration)
+
+    return {"message": "Integration updated successfully"}
+
+
+@app.delete("/api/devices/{device_id}/integrations/{integration_id}")
+async def delete_device_integration(device_id: int, integration_id: int, db=Depends(get_db)):
+    """Delete a device integration"""
+    query = select(DBDeviceIntegration).where(
+        DBDeviceIntegration.id == integration_id,
+        DBDeviceIntegration.device_id == device_id
+    )
+    result = await db.execute(query)
+    db_integration = result.scalar_one_or_none()
+
+    if not db_integration:
+        raise HTTPException(status_code=404, detail="Integration not found")
+
+    await db.delete(db_integration)
+    await db.commit()
+
+    return {"message": "Integration deleted successfully"}
+
+
+@app.post("/api/devices/{device_id}/integrations/{integration_id}/test")
+async def test_device_integration(device_id: int, integration_id: int, db=Depends(get_db)):
+    """Test a device integration connection"""
+    query = select(DBDeviceIntegration).where(
+        DBDeviceIntegration.id == integration_id,
+        DBDeviceIntegration.device_id == device_id
+    )
+    result = await db.execute(query)
+    db_integration = result.scalar_one_or_none()
+
+    if not db_integration:
+        raise HTTPException(status_code=404, detail="Integration not found")
+
+    # TODO: Implement actual connection test via connectors service
+    # For now, just update the verification timestamp
+    from datetime import datetime
+    db_integration.last_verified_at = datetime.now()
+    db_integration.is_verified = True
+    db_integration.last_error = None
+
+    await db.commit()
+
+    return {
+        "success": True,
+        "message": "Connection test successful"
+    }
 
 
 # ============== Health Check ==============

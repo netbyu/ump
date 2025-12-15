@@ -58,3 +58,9 @@ references/
 
 # TypeScript build info
 *.tsbuildinfo
+
+# AI Service
+services/ai/api/env
+services/ai/api/awscliv2.zip
+services/ai/api/aws/
+services/ai/*.zip

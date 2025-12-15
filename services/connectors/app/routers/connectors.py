@@ -49,10 +49,11 @@ async def create_connector(
     # Store credentials if provided
     credential_id = None
     if request.credentials:
-        credential_id = cred_manager.store(
+        credential_id = await cred_manager.store_credentials(
             connector_id=connector_id,
             credentials=request.credentials,
-            credential_type=meta.auth_schema.auth_type,
+            name=request.name,
+            auth_type=meta.auth_schema.auth_type,
         )
 
     # Create connector record
@@ -177,11 +178,12 @@ async def update_connector(
     if request.credentials is not None:
         meta = registry.get_metadata(conn["provider_id"])
         if conn["credential_id"]:
-            cred_manager.delete(conn["credential_id"])
-        conn["credential_id"] = cred_manager.store(
+            await cred_manager.delete_credentials(conn["credential_id"])
+        conn["credential_id"] = await cred_manager.store_credentials(
             connector_id=connector_id,
             credentials=request.credentials,
-            credential_type=meta.auth_schema.auth_type if meta else "api_key",
+            name=conn["name"],
+            auth_type=meta.auth_schema.auth_type if meta else "api_key",
         )
         conn["is_verified"] = False
 
@@ -216,7 +218,7 @@ async def delete_connector(
 
     # Delete credentials
     if conn["credential_id"]:
-        cred_manager.delete(conn["credential_id"])
+        await cred_manager.delete_credentials(conn["credential_id"])
 
     del _connector_store[connector_id]
 
@@ -239,7 +241,7 @@ async def test_connector(
     # Get credentials
     credentials = {}
     if conn["credential_id"]:
-        credentials = cred_manager.retrieve(conn["credential_id"]) or {}
+        credentials = await cred_manager.get_credentials(conn["credential_id"]) or {}
 
     auth_config = AuthConfig(
         auth_type=AuthType(meta.auth_schema.auth_type),

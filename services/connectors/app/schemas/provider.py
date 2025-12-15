@@ -19,6 +19,7 @@ class ProviderInfo(BaseModel):
     icon_url: Optional[str] = None
     categories: List[str] = []
     tags: List[str] = []
+    protocol: str = "rest"      # Protocol type: rest, json_rpc, graphql, native, etc.
     auth_type: str
     supports_webhooks: bool = False
 
@@ -28,6 +29,8 @@ class ProviderDetail(ProviderInfo):
     actions: List[Dict[str, Any]] = []
     triggers: List[Dict[str, Any]] = []
     auth_schema: Dict[str, Any] = {}
+    documentation_url: Optional[str] = None
+    base_url: Optional[str] = None
 
 
 # Backward compatibility aliases
