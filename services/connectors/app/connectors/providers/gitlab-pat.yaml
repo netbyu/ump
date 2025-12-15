@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.980645
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: gitlab-pat
+name: GitLab  (Personal Access Token)
+description: GitLab  (Personal Access Token) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for GitLab  (Personal Access Token)
+  - name: apiKey
+    label: Personal Access Token
+    type: string
+    required: true
+    secret: true
+    description: The Personal Access Token for your GitLab account
+    example: glpat-PMJoma_*******.***.***xwve
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/gitlab-pat
+categories:
+- dev-tools
+- ticketing
+tags:
+- gitlab-pat
+- dev-tools
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.980645'

@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.144065
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: smartlead-ai
+name: Smartlead.ai
+description: Smartlead.ai API integration
+version: 1.0.0
+base_url: https://server.smartlead.ai/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Smartlead.ai
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Smartlead.ai account
+    example: 12345678-1234-1234-1234-123456789012_abcdefg
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/smartlead-ai
+categories:
+- communication
+- marketing
+tags:
+- smartlead-ai
+- communication
+- marketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.144065'

@@ -1,0 +1,49 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.976788
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: guru
+name: Guru
+description: Guru API integration
+version: 1.0.0
+base_url: https://api.getguru.com/api/v1
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: User/Collection ID
+    type: string
+    required: true
+    secret: false
+    description: The user or collection ID of your Guru account
+  - name: password
+    label: User/Collection Token
+    type: string
+    required: true
+    secret: false
+    description: The user or collection token of your Guru account
+    example: 123e4567-e89b-12d3-a456-426614174000
+documentation_url: https://nango.dev/docs/integrations/all/guru
+categories:
+- knowledge-base
+tags:
+- guru
+- knowledge-base
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.976788'

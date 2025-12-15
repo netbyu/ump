@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.038244
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: linkedin
+name: LinkedIn
+description: LinkedIn API integration
+version: 1.0.0
+base_url: https://api.linkedin.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://www.linkedin.com/oauth/v2/authorization
+    token_url: https://www.linkedin.com/oauth/v2/accessToken
+documentation_url: https://nango.dev/docs/integrations/all/linkedin
+categories:
+- ats
+- social
+tags:
+- linkedin
+- ats
+- social
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.038244'

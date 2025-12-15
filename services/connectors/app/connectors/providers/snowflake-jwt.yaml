@@ -1,0 +1,47 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.147846
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: snowflake-jwt
+name: Snowflake (JWT)
+description: Snowflake (JWT) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.snowflakecomputing.com
+auth:
+  type: jwt
+  fields:
+  - name: accountIdentifier
+    label: Account Identifier
+    type: string
+    required: true
+    secret: false
+    description: The unique identifier for your Snowflake account.
+    example: KXOPMLU-RE00572
+  - name: userName
+    label: User Name
+    type: string
+    required: true
+    secret: false
+    description: The username for your Snowflake account used for authentication
+    example: MYUSER
+  - name: privateKey
+    label: Private Key
+    type: string
+    required: true
+    secret: true
+    description: The private key associated with your Snowflake account for JWT authentication
+    example: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END
+      PRIVATE KEY-----'
+documentation_url: https://nango.dev/docs/integrations/all/snowflake-jwt
+categories:
+- dev-tools
+tags:
+- snowflake-jwt
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.147846'

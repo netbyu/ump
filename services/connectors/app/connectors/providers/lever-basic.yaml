@@ -1,0 +1,46 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.035421
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: lever-basic
+name: Lever (Basic Auth)
+description: Lever (Basic Auth) API integration
+version: 1.0.0
+base_url: https://api.lever.co
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: User name
+    type: string
+    required: true
+    secret: false
+    description: The API Key of your lever account
+  - name: password
+    type: string
+    required: true
+    secret: false
+documentation_url: https://nango.dev/docs/integrations/all/lever-basic
+categories:
+- ats
+tags:
+- lever-basic
+- ats
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.035421'

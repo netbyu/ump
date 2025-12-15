@@ -1,0 +1,33 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.193855
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: workday-oauth
+name: Workday (OAuth)
+description: Workday (OAuth) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.tokenDomain}/ccx/api
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://${connectionConfig.authorizationDomain}/${connectionConfig.tenant}/authorize
+    token_url: https://${connectionConfig.tokenDomain}/ccx/oauth2/${connectionConfig.tenant}/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/workday-oauth
+categories:
+- hr
+- popular
+tags:
+- workday-oauth
+- hr
+- popular
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.193855'

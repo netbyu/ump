@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.012616
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: intercom
+name: Intercom
+description: Intercom API integration
+version: 1.0.0
+base_url: https://api.${connectionConfig.region}.intercom.io || https://api.intercom.io
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://app.${connectionConfig.region}.intercom.com/oauth ||
+      https://app.intercom.com/oauth
+    token_url: https://api.${connectionConfig.region}.intercom.io/auth/eagle/token
+      || https://api.intercom.io/auth/eagle/token
+documentation_url: https://nango.dev/docs/integrations/all/intercom
+categories:
+- marketing
+- popular
+- support
+- surveys
+- ticketing
+tags:
+- intercom
+- marketing
+- popular
+- support
+- surveys
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.012616'

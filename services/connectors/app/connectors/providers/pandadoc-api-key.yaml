@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.078435
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: pandadoc-api-key
+name: Pandadoc (API Key)
+description: Pandadoc (API Key) API integration
+version: 1.0.0
+base_url: https://api.pandadoc.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Pandadoc (API Key)
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Pandadoc account
+    example: 3039ba033eb1410caa0a2227158d63c9d6502cd8
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/pandadoc-api-key
+categories:
+- legal
+tags:
+- pandadoc-api-key
+- legal
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.078435'

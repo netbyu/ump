@@ -1,7 +1,12 @@
 """
 UCMP Connectors FastAPI Service
 ===============================
-REST API for connector management, credential storage, and action execution.
+REST API for managing providers, connectors, integrations, and action execution.
+
+Terminology:
+- Provider: Template/definition of an external service (e.g., Slack, Twilio)
+- Connector: A configured instance of a provider with credentials
+- Integration: A binding between a device/system and a connector
 """
 
 import os
@@ -12,7 +17,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.dependencies import init_services, get_registry
-from app.routers import connectors_router, credentials_router, execution_router
+from app.routers import (
+    providers_router,
+    connectors_router,
+    integrations_router,
+    credentials_router,
+    execution_router,
+)
 
 
 @asynccontextmanager
@@ -22,13 +33,13 @@ async def lifespan(app: FastAPI):
     # Initialize services
     registry, cred_manager, schema_registry = init_services()
 
-    # Auto-discover code-based connectors
+    # Auto-discover code-based providers
     registry.auto_discover("app.connectors")
 
-    # Load declarative manifests
-    manifests_dir = os.path.join(os.path.dirname(__file__), "connectors/manifests")
-    if os.path.exists(manifests_dir):
-        registry.load_manifests_from_directory(manifests_dir)
+    # Load declarative provider manifests
+    providers_dir = os.path.join(os.path.dirname(__file__), "connectors/providers")
+    if os.path.exists(providers_dir):
+        registry.load_manifests_from_directory(providers_dir)
 
     yield
 
@@ -38,7 +49,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="Integration platform for managing connectors, credentials, and executing actions",
+    description="Integration platform for managing providers, connectors, integrations, and executing actions",
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
@@ -53,7 +64,9 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(providers_router, prefix=settings.API_PREFIX)
 app.include_router(connectors_router, prefix=settings.API_PREFIX)
+app.include_router(integrations_router, prefix=settings.API_PREFIX)
 app.include_router(credentials_router, prefix=settings.API_PREFIX)
 app.include_router(execution_router, prefix=settings.API_PREFIX)
 
@@ -63,14 +76,14 @@ async def health_check():
     """Health check endpoint"""
     try:
         registry = get_registry()
-        connector_count = len(registry.get_connector_ids())
+        provider_count = len(registry.get_provider_ids())
     except RuntimeError:
-        connector_count = 0
+        provider_count = 0
 
     return {
         "status": "healthy",
         "service": "ucmp-connectors",
-        "connectors_loaded": connector_count,
+        "providers_loaded": provider_count,
     }
 
 

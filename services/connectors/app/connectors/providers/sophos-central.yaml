@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.145042
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sophos-central
+name: Sophos Central
+description: Sophos Central API integration
+version: 1.0.0
+base_url: ${connectionConfig.dataRegion}
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/api-integrations/sophos-central
+categories:
+- dev-tools
+tags:
+- sophos-central
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.145042'

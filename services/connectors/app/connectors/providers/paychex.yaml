@@ -1,0 +1,38 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.080078
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: paychex
+name: Paychex
+description: Paychex API integration
+version: 1.0.0
+base_url: https://api.paychex.com
+auth:
+  type: custom
+  fields:
+  - name: client_id
+    label: API Key
+    type: string
+    required: true
+    secret: false
+    description: A unique identifier for your application on Paychex
+  - name: client_secret
+    label: Client Secret
+    type: string
+    required: true
+    secret: true
+    description: A confidential key used to authenticate the identity of application
+      (client)
+documentation_url: https://nango.dev/docs/integrations/all/paychex
+categories:
+- hr
+tags:
+- paychex
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.080078'

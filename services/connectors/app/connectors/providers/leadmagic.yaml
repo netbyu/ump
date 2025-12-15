@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.033021
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: leadmagic
+name: LeadMagic
+description: LeadMagic API integration
+version: 1.0.0
+base_url: https://api.leadmagic.io
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for LeadMagic
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API Key for your LeadMagic account
+    example: 1e30029c105a89d36b76b879f01208d8
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/leadmagic
+categories:
+- marketing
+- crm
+tags:
+- leadmagic
+- marketing
+- crm
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.033021'

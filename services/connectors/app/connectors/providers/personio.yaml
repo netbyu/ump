@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.089938
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: personio
+name: Personio (v1)
+description: Personio (v1) API integration
+version: 1.0.0
+base_url: https://api.personio.de/v1
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/personio
+categories:
+- hr
+tags:
+- personio
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.089938'

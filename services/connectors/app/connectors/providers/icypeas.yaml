@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.011416
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: icypeas
+name: Icypeas
+description: Icypeas API integration
+version: 1.0.0
+base_url: https://app.icypeas.com/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Icypeas
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API Key for your Icypeas account
+    example: ab84bc2056614635866e4a98c153d7a1ab30541032fd433793d402f2a5db2404
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/icypeas
+categories:
+- marketing
+- crm
+tags:
+- icypeas
+- marketing
+- crm
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.011416'

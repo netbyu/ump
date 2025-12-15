@@ -1,0 +1,36 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.173942
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: twitter-v2
+name: Twitter (v2)
+description: Twitter (v2) API integration
+version: 1.0.0
+base_url: https://api.twitter.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://twitter.com/i/oauth2/authorize
+    token_url: https://api.twitter.com/2/oauth2/token
+    scopes:
+    - offline.access
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+      response_mode: query
+documentation_url: https://nango.dev/docs/integrations/all/twitter-v2
+categories:
+- marketing
+- social
+tags:
+- twitter-v2
+- marketing
+- social
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.173942'

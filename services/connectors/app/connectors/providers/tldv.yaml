@@ -1,0 +1,40 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.170313
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: tldv
+name: tl;dv
+description: tl;dv API integration
+version: 1.0.0
+base_url: https://pasta.tldv.io
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for tl;dv
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your tl;dv account
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/tldv
+categories:
+- productivity
+tags:
+- tldv
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.170313'

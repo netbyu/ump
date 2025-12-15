@@ -1,0 +1,30 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.165552
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: thrivecart-oauth
+name: ThriveCart (OAuth)
+description: ThriveCart (OAuth) API integration
+version: 1.0.0
+base_url: https://thrivecart.com/api/external
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://thrivecart.com/authorization/new
+    token_url: https://thrivecart.com/authorization/token
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/thrivecart-oauth
+categories:
+- e-commerce
+- payment
+tags:
+- thrivecart-oauth
+- e-commerce
+- payment
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.165552'

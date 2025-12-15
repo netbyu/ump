@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.940694
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: docuware
+name: DocuWare
+description: DocuWare API integration
+version: 1.0.0
+base_url: https://${connectionConfig.domain}/DocuWare/Platform
+auth:
+  type: two_step
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    secret: false
+    description: The Username to your DocuWare account
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: The Password to your DocuWare account
+documentation_url: https://nango.dev/docs/integrations/all/docuware
+categories:
+- productivity
+tags:
+- docuware
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.940694'

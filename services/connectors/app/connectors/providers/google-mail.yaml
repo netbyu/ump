@@ -1,0 +1,26 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.985923
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: google-mail
+name: Gmail
+description: Gmail API integration
+version: 1.0.0
+base_url: https://gmail.googleapis.com
+auth:
+  type: none
+documentation_url: https://nango.dev/docs/api-integrations/google-mail
+categories:
+- popular
+- productivity
+tags:
+- google-mail
+- popular
+- productivity
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:12.985923'

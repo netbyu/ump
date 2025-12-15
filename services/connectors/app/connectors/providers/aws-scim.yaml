@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.879866
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: aws-scim
+name: AWS (SCIM)
+description: AWS (SCIM) API integration
+version: 1.0.0
+base_url: ${connectionConfig.scimEndpoint}
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for AWS (SCIM)
+  - name: apiKey
+    label: SCIM Access Token
+    type: string
+    required: true
+    secret: true
+    description: The SCIM Access Token generated from your AWS IAM Identity Center
+    example: 878374852-dea1-47d5-9ae0-4d00a0bdbb13:ff7d4f04-7385-4add-befe-a9ed18341d0d:l6uepDQrHfNOiOYXZ7HYZL8hlvsYHSG7Cnx104tkRLmDbO8l/p5GxLv6Id5BCLicmjeKvhrlqrPvL6VMcAnJS6oitQrz3ZiZr18rnybzyISRlyjxktYtIK1R80YJXBH6U7NSvwGsu5gDbUZDGlCDeh+FFhL8tmUuHytvxuhz3jNhsh&8X9xiLBg=:ICn/+PhEST+8/pizxTmoA0DW9JcQTL4EVRh0z6DpJwQ4vFQ+iwAxNjh16SHdUovAJyMjT+TPDwI8gN63DLE+9EV+lcV+i2H/OTDE4x7L18WRz3ndMf/4dY98mJ41qRYBgh63Pi8PdXkAex2l8HJLMkzjjPirN+8DCBfPVKK+z/nCc04RXWIz6XOmqwgB1sV5jwfAxPhuV6vqgVosoSngSw7Y2Zon70PiI5UbTTZffF6QWFU7i9b3dgMMDAH6f9vm11EB6YpJt/XC74L1pDvKXiSzhel7b7dYzGvrXK0rN29cnjn0o58VYCOgk9c05p/nRsEaSs2Y/v7BqgxXUvI+Aw==
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/aws-scim
+categories:
+- dev-tools
+tags:
+- aws-scim
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.879866'

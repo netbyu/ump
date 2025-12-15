@@ -1,0 +1,26 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.137904
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sharepoint-online-oauth2-cc
+name: SharePoint Online (Client Credentials V2)
+description: SharePoint Online (Client Credentials V2) API integration
+version: 1.0.0
+base_url: https://graph.microsoft.com
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/sharepoint-online-oauth2-cc
+categories:
+- storage
+- communication
+tags:
+- sharepoint-online-oauth2-cc
+- storage
+- communication
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.137904'

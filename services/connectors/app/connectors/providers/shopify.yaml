@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.140158
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: shopify
+name: Shopify (OAuth)
+description: Shopify (OAuth) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.myshopify.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://${connectionConfig.subdomain}.myshopify.com/admin/oauth/authorize
+    token_url: https://${connectionConfig.subdomain}.myshopify.com/admin/oauth/access_token
+documentation_url: https://nango.dev/docs/api-integrations/shopify
+categories:
+- e-commerce
+- popular
+tags:
+- shopify
+- e-commerce
+- popular
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:13.140158'

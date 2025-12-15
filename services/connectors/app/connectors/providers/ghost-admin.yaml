@@ -1,0 +1,36 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.981313
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ghost-admin
+name: Ghost (Admin API)
+description: Ghost (Admin API) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.adminDomain}/ghost/api/admin/
+auth:
+  type: jwt
+  fields:
+  - name: privateKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The private key for your Ghost account
+    example: 1234567890abcdef12345678:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+documentation_url: https://nango.dev/docs/integrations/all/ghost-admin
+categories:
+- dev-tools
+- design
+- cms
+tags:
+- ghost-admin
+- dev-tools
+- design
+- cms
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.981313'

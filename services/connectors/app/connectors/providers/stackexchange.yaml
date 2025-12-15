@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.152062
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: stackexchange
+name: Stack Exchange
+description: Stack Exchange API integration
+version: 1.0.0
+base_url: https://api.stackexchange.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://stackoverflow.com/oauth
+    token_url: https://stackoverflow.com/oauth/access_token/json
+    scopes:
+    - no_expiry
+documentation_url: https://nango.dev/docs/integrations/all/stackexchange
+categories:
+- knowledge-base
+- support
+tags:
+- stackexchange
+- knowledge-base
+- support
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.152062'

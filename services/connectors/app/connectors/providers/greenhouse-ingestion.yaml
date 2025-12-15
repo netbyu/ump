@@ -1,0 +1,27 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.998055
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: greenhouse-ingestion
+name: Greenhouse (Ingestion API)
+description: Greenhouse (Ingestion API) API integration
+version: 1.0.0
+base_url: https://api.greenhouse.io
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://api.greenhouse.io/oauth/authorize
+    token_url: https://api.greenhouse.io/oauth/token
+documentation_url: https://nango.dev/docs/integrations/all/greenhouse-ingestion
+categories:
+- ats
+tags:
+- greenhouse-ingestion
+- ats
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.998055'

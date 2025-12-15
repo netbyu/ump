@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.027359
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: kintone-user-api
+name: Kintone User API
+description: Kintone User API API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.kintone.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Kintone User API
+  - name: apiKey
+    label: API Token
+    type: string
+    required: true
+    secret: true
+    description: The API Token for your Kintone account
+    example: cy.s.api1.eyJraWQiOiJ2MSIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjU2In0.eyJyYW5kIjoiNWQ4ZmNiOGYtMDk3ZC00MWNhLWJkZjAtYTAxN2ZiMDZkYjNlIiwiaXNzIjoieTkwNzgyIiwiZXhwIjoxNzU4MTg1Mzg5fQ.GUoYL6hBFGOywcfjxQB3Y3vSwEq67evDGcmVQvzPY94
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/kintone-user-api
+categories:
+- productivity
+tags:
+- kintone-user-api
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.027359'

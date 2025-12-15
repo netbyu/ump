@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.985292
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: google-chat
+name: Google Chat
+description: Google Chat API integration
+version: 1.0.0
+base_url: https://chat.googleapis.com
+auth:
+  type: none
+documentation_url: https://nango.dev/docs/integrations/all/google-chat
+categories:
+- productivity
+tags:
+- google-chat
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.985292'

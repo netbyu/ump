@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.854118
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: aimfox-oauth
+name: Aimfox (OAuth)
+description: Aimfox (OAuth) API integration
+version: 1.0.0
+base_url: https://api.aimfox.com/api
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://id.aimfox.com/realms/aimfox-prod/protocol/openid-connect/auth
+    token_url: https://id.aimfox.com/realms/aimfox-prod/protocol/openid-connect/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/aimfox-oauth
+categories:
+- surveys
+tags:
+- aimfox-oauth
+- surveys
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.854118'

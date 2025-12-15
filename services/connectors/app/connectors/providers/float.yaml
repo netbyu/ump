@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.967165
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: float
+name: Float
+description: Float API integration
+version: 1.0.0
+base_url: https://api.float.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Float
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Float account
+    example: c9b38e5af69912d0rq9tE/fbT5/RPLk8Ua7tfHo9s6xMiCKvmCOvenR/Krc=
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/float
+categories:
+- productivity
+tags:
+- float
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.967165'

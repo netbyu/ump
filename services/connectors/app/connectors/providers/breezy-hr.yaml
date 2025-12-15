@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.896145
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: breezy-hr
+name: Breezy HR
+description: Breezy HR API integration
+version: 1.0.0
+base_url: https://api.breezy.hr
+auth:
+  type: two_step
+  fields:
+  - name: email
+    label: Email
+    type: string
+    required: true
+    secret: false
+    description: The email address associated with your Breezy HR account
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: The password for your Breezy HR account
+documentation_url: https://nango.dev/docs/integrations/all/breezy-hr
+categories:
+- hr
+tags:
+- breezy-hr
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.896145'

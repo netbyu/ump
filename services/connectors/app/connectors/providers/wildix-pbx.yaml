@@ -1,0 +1,26 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.189307
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: wildix-pbx
+name: Wildix PBX
+description: Wildix PBX API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.wildixin.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://${connectionConfig.subdomain}.wildixin.com/authorization/oauth2
+    token_url: https://${connectionConfig.subdomain}.wildixin.com/authorization/oauth2Token
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/wildix-pbx
+tags:
+- wildix-pbx
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.189307'

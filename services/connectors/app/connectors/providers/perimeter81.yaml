@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.089482
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: perimeter81
+name: Perimeter81
+description: Perimeter81 API integration
+version: 1.0.0
+base_url: https://api.perimeter81.com/api/rest
+auth:
+  type: two_step
+  fields:
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Perimeter81 account
+documentation_url: https://nango.dev/docs/integrations/all/perimeter81
+categories:
+- productivity
+tags:
+- perimeter81
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.089482'

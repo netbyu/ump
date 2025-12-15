@@ -7,13 +7,13 @@ Dependency injection for services
 from typing import Optional
 from functools import lru_cache
 
-from app.connectors.registry import ConnectorRegistry
+from app.connectors.registry import ProviderRegistry
 from app.connectors.credentials import CredentialManager, InMemoryCredentialBackend
 from app.connectors.schema import SchemaRegistry
 from app.core.config import settings
 
 # Global instances (initialized on startup)
-_registry: Optional[ConnectorRegistry] = None
+_registry: Optional[ProviderRegistry] = None
 _cred_manager: Optional[CredentialManager] = None
 _schema_registry: Optional[SchemaRegistry] = None
 
@@ -22,8 +22,8 @@ def init_services():
     """Initialize global service instances"""
     global _registry, _cred_manager, _schema_registry
 
-    # Initialize registry
-    _registry = ConnectorRegistry.get_instance()
+    # Initialize provider registry
+    _registry = ProviderRegistry.get_instance()
 
     # Initialize credential manager
     backend = InMemoryCredentialBackend()
@@ -35,8 +35,8 @@ def init_services():
     return _registry, _cred_manager, _schema_registry
 
 
-def get_registry() -> ConnectorRegistry:
-    """Get connector registry instance"""
+def get_registry() -> ProviderRegistry:
+    """Get provider registry instance"""
     if _registry is None:
         raise RuntimeError("Services not initialized. Call init_services() first.")
     return _registry

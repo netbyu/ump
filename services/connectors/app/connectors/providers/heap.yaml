@@ -1,0 +1,39 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.003170
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: heap
+name: Heap
+description: Heap API integration
+version: 1.0.0
+base_url: https://heapanalytics.com/api
+auth:
+  type: two_step
+  fields:
+  - name: appId
+    label: App ID
+    type: string
+    required: true
+    secret: false
+    description: Your Heap application ID
+    example: '3207896401'
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: Your Heap API Key
+    example: 1bc32cba-a5d6-438a-bbcc-af312f560a3c
+documentation_url: https://nango.dev/docs/integrations/all/heap
+categories:
+- other
+tags:
+- heap
+- other
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.003170'

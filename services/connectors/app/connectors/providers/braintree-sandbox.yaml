@@ -1,0 +1,27 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.894284
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: braintree-sandbox
+name: Braintree (Sandbox)
+description: Braintree (Sandbox) API integration
+version: 1.0.0
+base_url: https://api.sandbox.braintreegateway.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://api.sandbox.braintreegateway.com/oauth/connect
+    token_url: https://api.sandbox.braintreegateway.com/oauth/access_tokens
+    token_params:
+      grant_type: authorization_code
+    scope_separator: ','
+documentation_url: https://nango.dev/docs/integrations/all/braintree-sandbox
+tags:
+- braintree-sandbox
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.894284'

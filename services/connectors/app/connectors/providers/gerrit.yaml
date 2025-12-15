@@ -1,0 +1,36 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.974786
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: gerrit
+name: Gerrit
+description: Gerrit API integration
+version: 1.0.0
+base_url: https://${connectionConfig.host}
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+documentation_url: https://nango.dev/docs/integrations/all/gerrit
+categories:
+- dev-tools
+tags:
+- gerrit
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.974786'

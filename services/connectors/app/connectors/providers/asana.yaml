@@ -1,0 +1,33 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.867720
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: asana
+name: Asana
+description: Asana API integration
+version: 1.0.0
+base_url: https://app.asana.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://app.asana.com/-/oauth_authorize
+    token_url: https://app.asana.com/-/oauth_token
+    scopes:
+    - default
+    token_params:
+      grant_type: authorization_code
+documentation_url: https://nango.dev/docs/integrations/all/asana
+categories:
+- productivity
+- ticketing
+tags:
+- asana
+- productivity
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.867720'

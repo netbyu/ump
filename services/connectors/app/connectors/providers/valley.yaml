@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.184837
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: valley
+name: Valley (OAuth)
+description: Valley (OAuth) API integration
+version: 1.0.0
+base_url: https://api.joinvalley.co/api/
+auth:
+  type: two_step
+  fields:
+  - name: email
+    label: Email
+    type: string
+    required: true
+    secret: false
+    description: Your Valley email address
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: Your Valley password
+documentation_url: https://nango.dev/docs/integrations/all/valley
+categories:
+- marketing
+tags:
+- valley
+- marketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.184837'

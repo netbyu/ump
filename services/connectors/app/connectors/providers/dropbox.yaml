@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.941266
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: dropbox
+name: Dropbox
+description: Dropbox API integration
+version: 1.0.0
+base_url: https://api.dropboxapi.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://www.dropbox.com/oauth2/authorize
+    token_url: https://api.dropboxapi.com/oauth2/token
+    authorization_params:
+      token_access_type: offline
+documentation_url: https://nango.dev/docs/integrations/all/dropbox
+categories:
+- knowledge-base
+- storage
+tags:
+- dropbox
+- knowledge-base
+- storage
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.941266'

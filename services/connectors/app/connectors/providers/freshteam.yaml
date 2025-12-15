@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.970987
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: freshteam
+name: Freshteam
+description: Freshteam API integration
+version: 1.0.0
+base_url: https://${connectionConfig.accountName}.freshteam.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Freshteam
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key to your Freshteam account
+    example: XtoF94LMNyKPbd5AvR1QJh
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/freshteam
+categories:
+- hr
+tags:
+- freshteam
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.970987'

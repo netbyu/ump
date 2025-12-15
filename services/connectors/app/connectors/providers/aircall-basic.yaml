@@ -1,0 +1,45 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.855563
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: aircall-basic
+name: Aircall (Basic Auth)
+description: Aircall (Basic Auth) API integration
+version: 1.0.0
+base_url: https://api.aircall.io
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: API ID
+    type: string
+    required: true
+    secret: false
+    description: The Application ID (API ID) for your Aircall account
+  - name: password
+    label: API Token
+    type: string
+    required: true
+    secret: false
+    description: The Admin API Key (API Token) for your Aircall account
+documentation_url: https://nango.dev/docs/integrations/all/aircall-basic
+tags:
+- aircall-basic
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.855563'

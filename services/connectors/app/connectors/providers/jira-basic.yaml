@@ -1,0 +1,50 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.017200
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: jira-basic
+name: Jira (Basic Auth)
+description: Jira (Basic Auth) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.atlassian.net
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: Email Address
+    type: string
+    required: true
+    secret: false
+    description: The Email Address of your Jira account
+  - name: password
+    label: API Key
+    type: string
+    required: true
+    secret: false
+    description: The API Key of your Jira account
+documentation_url: https://nango.dev/docs/integrations/all/jira-basic
+categories:
+- productivity
+- ticketing
+tags:
+- jira-basic
+- productivity
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.017200'

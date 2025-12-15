@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.856968
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: airtable-pat
+name: Airtable (Personal Access Token)
+description: Airtable (Personal Access Token) API integration
+version: 1.0.0
+base_url: https://api.airtable.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Airtable (Personal Access Token)
+  - name: apiKey
+    label: Personal Access Token
+    type: string
+    required: true
+    secret: true
+    description: The Personal Access Token for your Airtable account
+    example: patoXxYzA1B2C3D4Ef.98a7b6c5d4e3f2g1h0i9j8k7l6m5n4o3p2q1r0s9t8u7v6w5x4y3z2a1b0cdef
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/airtable-pat
+categories:
+- productivity
+tags:
+- airtable-pat
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.856968'

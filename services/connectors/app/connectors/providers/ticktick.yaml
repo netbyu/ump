@@ -1,0 +1,30 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.163064
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ticktick
+name: TickTick
+description: TickTick API integration
+version: 1.0.0
+base_url: https://api.ticktick.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://ticktick.com/oauth/authorize
+    token_url: https://ticktick.com/oauth/token
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/ticktick
+categories:
+- productivity
+- ticketing
+tags:
+- ticktick
+- productivity
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.163064'

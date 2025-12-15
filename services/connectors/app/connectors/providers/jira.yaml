@@ -1,0 +1,47 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.015649
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: jira
+name: Jira (OAuth)
+description: Jira (OAuth) API integration
+version: 1.0.0
+base_url: https://api.atlassian.com
+auth:
+  type: oauth2
+  fields:
+  - name: cloudId
+    label: Cloudid
+    type: string
+    required: true
+    description: 'Required configuration: cloudId'
+  - name: accountId
+    label: Accountid
+    type: string
+    required: true
+    description: 'Required configuration: accountId'
+  oauth2:
+    authorization_url: https://auth.atlassian.com/authorize
+    token_url: https://auth.atlassian.com/oauth/token
+    scopes:
+    - offline_access
+    authorization_params:
+      audience: api.atlassian.com
+      prompt: consent
+documentation_url: https://nango.dev/docs/api-integrations/jira
+categories:
+- popular
+- productivity
+- ticketing
+tags:
+- jira
+- popular
+- productivity
+- ticketing
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:13.015649'

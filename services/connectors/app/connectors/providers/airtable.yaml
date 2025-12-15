@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.856240
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: airtable
+name: Airtable
+description: Airtable API integration
+version: 1.0.0
+base_url: https://api.airtable.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://airtable.com/oauth2/v1/authorize
+    token_url: https://airtable.com/oauth2/v1/token
+documentation_url: https://nango.dev/docs/api-integrations/airtable
+categories:
+- popular
+- productivity
+tags:
+- airtable
+- popular
+- productivity
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:12.856240'

@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.887487
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: bill
+name: Bill (Connect API)
+description: Bill (Connect API) API integration
+version: 1.0.0
+base_url: https://gateway.prod.bill.com/connect
+auth:
+  type: bill
+documentation_url: https://nango.dev/docs/integrations/all/bill
+categories:
+- payment
+tags:
+- bill
+- payment
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.887487'

@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.068655
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: odoo-cc
+name: Odoo (Client Credentials)
+description: Odoo (Client Credentials) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.serverUrl}/restapi
+auth:
+  type: two_step
+  fields:
+  - name: consumerId
+    label: Consumer ID
+    type: string
+    required: true
+    secret: false
+    description: Your App Consumer ID
+  - name: consumerSecret
+    label: Consumer Secret
+    type: string
+    required: true
+    secret: true
+    description: Your App Consumer Secret
+documentation_url: https://nango.dev/docs/integrations/all/odoo-cc
+categories:
+- erp
+tags:
+- odoo-cc
+- erp
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.068655'

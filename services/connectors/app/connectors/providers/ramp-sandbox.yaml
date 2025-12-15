@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.105616
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ramp-sandbox
+name: Ramp (Sandbox)
+description: Ramp (Sandbox) API integration
+version: 1.0.0
+base_url: https://demo-api.ramp.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://demo.ramp.com/v1/authorize
+    token_url: https://demo-api.ramp.com/developer/v1/token
+documentation_url: https://nango.dev/docs/integrations/all/ramp-sandbox
+tags:
+- ramp-sandbox
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.105616'

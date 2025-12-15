@@ -1,0 +1,34 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.179231
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ukg-pro-wfm
+name: UKG Pro (Workforce Management)
+description: UKG Pro (Workforce Management) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}/api
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://welcome-us.ukg.net/authorize
+    token_url: https://welcome-us.ukg.net/oauth/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+      audience: https://wfm.ukg.net/api
+      realm: ${connectionConfig.tenantName}
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/ukg-pro-wfm
+categories:
+- hr
+tags:
+- ukg-pro-wfm
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.179231'

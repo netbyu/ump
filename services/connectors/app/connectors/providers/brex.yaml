@@ -1,0 +1,30 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.896748
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: brex
+name: Brex (OAuth)
+description: Brex (OAuth) API integration
+version: 1.0.0
+base_url: https://platform.brexapis.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://accounts-api.brex.com/oauth2/default/v1/authorize
+    token_url: https://accounts-api.brex.com/oauth2/default/v1/token
+    scopes:
+    - openid
+    - offline_access
+documentation_url: https://nango.dev/docs/integrations/all/brex
+categories:
+- banking
+tags:
+- brex
+- banking
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.896748'

@@ -1,0 +1,40 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.027955
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: knowbe4
+name: KnowBe4 (Reporting)
+description: KnowBe4 (Reporting) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.knowbe4.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for KnowBe4 (Reporting)
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your KnowBe4 account
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/knowbe4
+categories:
+- support
+tags:
+- knowbe4
+- support
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.027955'

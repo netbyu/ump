@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.157971
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: tailscale
+name: Tailscale (OAuth)
+description: Tailscale (OAuth) API integration
+version: 1.0.0
+base_url: https://api.tailscale.com/api
+auth:
+  type: two_step
+  fields:
+  - name: clientId
+    label: Client ID
+    type: string
+    required: true
+    secret: false
+    description: Your OAuth Client ID
+    example: kcLBRFmtYZ11CNTRL
+  - name: clientSecret
+    label: Client secret
+    type: string
+    required: true
+    secret: true
+    description: Your OAuth Client secret
+    example: tskey-client-kdC27MPR3X11CNTRL-tjtxjop8mdawckVitWkNdaBaNRtZ48GN
+documentation_url: https://nango.dev/docs/integrations/all/tailscale
+categories:
+- dev-tools
+- productivity
+tags:
+- tailscale
+- dev-tools
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.157971'

@@ -1,0 +1,48 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.021081
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: jobdiva
+name: JobDiva
+description: JobDiva API integration
+version: 1.0.0
+base_url: https://api.jobdiva.com
+auth:
+  type: two_step
+  fields:
+  - name: clientId
+    label: Client ID
+    type: string
+    required: true
+    secret: false
+    description: Your JobDiva Client ID
+    example: '3050'
+  - name: username
+    label: Username
+    type: string
+    required: true
+    secret: false
+    description: Your JobDiva API username
+    example: username
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: Your JobDiva API password
+    example: password
+documentation_url: https://nango.dev/docs/integrations/all/jobdiva
+categories:
+- hr
+- ats
+tags:
+- jobdiva
+- hr
+- ats
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:13.021081'

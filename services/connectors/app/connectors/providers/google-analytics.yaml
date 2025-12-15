@@ -1,0 +1,23 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.984076
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: google-analytics
+name: Google Analytics
+description: Google Analytics API integration
+version: 1.0.0
+auth:
+  type: none
+documentation_url: https://nango.dev/docs/integrations/all/google-analytics
+categories:
+- analytics
+tags:
+- google-analytics
+- analytics
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.984076'

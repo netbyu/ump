@@ -1,0 +1,52 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.180878
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: unanet
+name: Unanet
+description: Unanet API integration
+version: 1.0.0
+base_url: https://compass.cosential.com
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: User name
+    type: string
+    required: true
+    secret: false
+    description: Your Unanet username
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: Your Unanet password
+documentation_url: https://nango.dev/docs/integrations/all/unanet
+categories:
+- crm
+- erp
+- accounting
+tags:
+- unanet
+- crm
+- erp
+- accounting
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.180878'

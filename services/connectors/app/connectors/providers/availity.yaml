@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.875791
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: availity
+name: Availity
+description: Availity API integration
+version: 1.0.0
+base_url: https://api.availity.com
+auth:
+  type: custom
+  fields:
+  - name: client_id
+    label: API Key
+    type: string
+    required: true
+    secret: false
+    description: Your application API Key
+  - name: client_secret
+    label: Secret
+    type: string
+    required: true
+    secret: true
+    description: Your application Secret
+documentation_url: https://nango.dev/docs/api-integrations/availity
+categories:
+- other
+tags:
+- availity
+- other
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.875791'

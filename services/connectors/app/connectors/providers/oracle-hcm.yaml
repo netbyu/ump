@@ -1,0 +1,48 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.074442
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: oracle-hcm
+name: Oracle Fusion Cloud (HCM)
+description: Oracle Fusion Cloud (HCM) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.restServerUrl}
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: Username
+    type: string
+    required: true
+    secret: false
+    description: Your Oracle Cloud service username.
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: Your Oracle Cloud service password.
+documentation_url: https://nango.dev/docs/integrations/all/oracle-hcm
+categories:
+- hr
+tags:
+- oracle-hcm
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.074442'

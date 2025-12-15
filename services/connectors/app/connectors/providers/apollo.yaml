@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.865181
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: apollo
+name: Apollo (API Key)
+description: Apollo (API Key) API integration
+version: 1.0.0
+base_url: https://app.apollo.io/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Apollo (API Key)
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Apollo account
+    example: eh_3LUIFtj04rG4KF_FoFw
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/apollo
+categories:
+- marketing
+tags:
+- apollo
+- marketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.865181'

@@ -1,0 +1,42 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.059594
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: miro-scim
+name: Miro (SCIM API)
+description: Miro (SCIM API) API integration
+version: 1.0.0
+base_url: https://miro.com/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Miro (SCIM API)
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Miro scim account
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/miro-scim
+categories:
+- design
+- productivity
+tags:
+- miro-scim
+- design
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.059594'

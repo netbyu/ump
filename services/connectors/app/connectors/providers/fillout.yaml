@@ -1,0 +1,27 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.966742
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: fillout
+name: Fillout (Oauth)
+description: Fillout (Oauth) API integration
+version: 1.0.0
+base_url: ${connectionConfig.base_url}
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://build.fillout.com/authorize/oauth
+    token_url: https://server.fillout.com/public/oauth/accessToken
+documentation_url: https://nango.dev/docs/integrations/all/fillout
+categories:
+- surveys
+tags:
+- fillout
+- surveys
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:12.966742'

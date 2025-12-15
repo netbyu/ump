@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.124223
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sap-fieldglass
+name: SAP Fieldglass
+description: SAP Fieldglass API integration
+version: 1.0.0
+base_url: https://${connectionConfig.domain}/api
+auth:
+  type: two_step
+  fields:
+  - name: clientId
+    label: Client ID
+    type: string
+    required: true
+    secret: false
+    description: Your SAP Fieldglass application Client ID
+  - name: clientSecret
+    label: Client secret
+    type: string
+    required: true
+    secret: true
+    description: Your SAP Fieldglass application Client secret
+  - name: appKey
+    label: Application Key
+    type: string
+    required: true
+    secret: true
+    description: Your SAP Fieldglass application key
+documentation_url: https://nango.dev/docs/integrations/all/sap-fieldglass
+categories:
+- hr
+tags:
+- sap-fieldglass
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.124223'

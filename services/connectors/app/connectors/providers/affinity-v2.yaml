@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.852608
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: affinity-v2
+name: Affinity (v2)
+description: Affinity (v2) API integration
+version: 1.0.0
+base_url: https://api.affinity.co
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Affinity (v2)
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API Key for your Affinity account
+    example: nrlW2KR5m-qUCA-rTqKb_EUK1swERlenqn70KNMMrTM
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/affinity-v2
+categories:
+- crm
+tags:
+- affinity-v2
+- crm
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.852608'

@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.127722
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: scrapedo
+name: Scrape.do
+description: Scrape.do API integration
+version: 1.0.0
+base_url: https://api.scrape.do
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Scrape.do
+  - name: apiKey
+    label: API Token
+    type: string
+    required: true
+    secret: true
+    description: The API Token for your Scrape.do account
+    example: 3c12d71308a346c41d10b19a2b2ac1ea5cacb53588d
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/scrapedo
+categories:
+- other
+tags:
+- scrapedo
+- other
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.127722'

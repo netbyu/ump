@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.945592
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: emarsys-oauth
+name: Emarsys (OAuth)
+description: Emarsys (OAuth) API integration
+version: 1.0.0
+base_url: https://api.emarsys.net
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/emarsys-oauth
+categories:
+- marketing
+tags:
+- emarsys-oauth
+- marketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.945592'

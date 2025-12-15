@@ -31,8 +31,8 @@ class Settings(BaseSettings):
     # Security
     CREDENTIAL_ENCRYPTION_KEY: str = "dev-key-change-in-prod-32chars!"
 
-    # Connectors
-    MANIFESTS_DIR: str = "app/connectors/manifests"
+    # Providers
+    PROVIDERS_DIR: str = "app/connectors/providers"
 
     # Temporal (optional)
     TEMPORAL_HOST: Optional[str] = None

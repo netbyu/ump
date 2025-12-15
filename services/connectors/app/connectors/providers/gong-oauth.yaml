@@ -1,0 +1,40 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.983160
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: gong-oauth
+name: Gong (Oauth)
+description: Gong (Oauth) API integration
+version: 1.0.0
+base_url: ${connectionConfig.api_base_url_for_customer} || https://api.gong.io
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://app.gong.io/oauth2/authorize
+    token_url: https://app.gong.io/oauth2/generate-customer-token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+      access_type: offline
+documentation_url: https://nango.dev/docs/integrations/all/gong-oauth
+categories:
+- communication
+- marketing
+- productivity
+- video
+- popular
+tags:
+- gong-oauth
+- communication
+- marketing
+- productivity
+- video
+- popular
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.983160'

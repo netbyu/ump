@@ -1,0 +1,50 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.923445
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: confluence-basic
+name: Confluence (Basic Auth)
+description: Confluence (Basic Auth) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.atlassian.net
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: Email Address
+    type: string
+    required: true
+    secret: false
+    description: The email address for your Confluence account
+  - name: password
+    label: API token
+    type: string
+    required: true
+    secret: false
+    description: The API token for your Confluence account
+documentation_url: https://nango.dev/docs/integrations/all/confluence-basic
+categories:
+- knowledge-base
+- popular
+tags:
+- confluence-basic
+- knowledge-base
+- popular
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.923445'

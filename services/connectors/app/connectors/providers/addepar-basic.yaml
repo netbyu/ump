@@ -1,0 +1,50 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.846096
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: addepar-basic
+name: Addepar (Basic Auth)
+description: Addepar (Basic Auth) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.addepar.com/api
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: API Key
+    type: string
+    required: true
+    secret: false
+    description: Your Addepar API Key
+    example: 5ab87915-2deb-429c-a1e2-8b0495900f45
+  - name: password
+    label: API Secret
+    type: string
+    required: true
+    secret: false
+    description: Your Addepar API Secret
+    example: zidcISqfSGh05JsWwuY9ZdSCkXrhANHvCX0U0gkE
+documentation_url: https://nango.dev/docs/integrations/all/addepar-basic
+categories:
+- analytics
+tags:
+- addepar-basic
+- analytics
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.846096'

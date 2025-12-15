@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.116128
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: roam-scim
+name: Roam (SCIM API)
+description: Roam (SCIM API) API integration
+version: 1.0.0
+base_url: https://api.ro.am/scim
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Roam (SCIM API)
+  - name: apiKey
+    label: SCIM API Token
+    type: string
+    required: true
+    secret: true
+    description: The SCIM API token generated from your Roam organization settings.
+    example: rmk-uu9zt58h-EYHyLJ3ay4Mc-wuWQTOk-Y2yY-gZlW7Ys8AdVXBRZks_SGrCyZ09_IDvX9ikahdxushGYKcT77Fjw
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/roam-scim
+categories:
+- productivity
+tags:
+- roam-scim
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.116128'

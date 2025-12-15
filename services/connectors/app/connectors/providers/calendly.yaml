@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.903759
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: calendly
+name: Calendly
+description: Calendly API integration
+version: 1.0.0
+base_url: https://api.calendly.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://auth.calendly.com/oauth/authorize
+    token_url: https://auth.calendly.com/oauth/token
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/calendly
+categories:
+- productivity
+tags:
+- calendly
+- productivity
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:12.903759'

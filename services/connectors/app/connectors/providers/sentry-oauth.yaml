@@ -1,0 +1,28 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.131010
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sentry-oauth
+name: Sentry (Public Integrations)
+description: Sentry (Public Integrations) API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}/api
+auth:
+  type: oauth2
+  oauth2:
+    token_url: https://sentry.io/api/0/sentry-app-installations/${connectionConfig.installation.uuid}/authorizations/
+documentation_url: https://nango.dev/docs/integrations/all/sentry-oauth
+categories:
+- dev-tools
+- analytics
+tags:
+- sentry-oauth
+- dev-tools
+- analytics
+supports_webhooks: true
+nango_source: true
+converted_at: '2025-12-15T12:42:13.131010'

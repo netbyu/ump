@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.110093
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: recruitee
+name: Recruitee
+description: Recruitee API integration
+version: 1.0.0
+base_url: https://api.recruitee.com/c/${connectionConfig.companyId}
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Recruitee
+  - name: apiKey
+    label: Personal API Token
+    type: string
+    required: true
+    secret: true
+    description: The Personal API Token for your Recruitee account
+    example: OTlHOGlWNUFJRkErekoxd1lXMGd6dz09
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/recruitee
+categories:
+- ats
+tags:
+- recruitee
+- ats
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.110093'

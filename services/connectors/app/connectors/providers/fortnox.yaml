@@ -1,0 +1,35 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.968257
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: fortnox
+name: Fortnox
+description: Fortnox API integration
+version: 1.0.0
+base_url: https://api.fortnox.se/3
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://apps.fortnox.se/oauth-v1/auth
+    token_url: https://apps.fortnox.se/oauth-v1/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+      access_type: offline
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/fortnox
+categories:
+- accounting
+- invoicing
+tags:
+- fortnox
+- accounting
+- invoicing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.968257'

@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.199858
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: zapier-scim
+name: Zapier (SCIM API)
+description: Zapier (SCIM API) API integration
+version: 1.0.0
+base_url: https://zapier.com/scim/v2
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Zapier (SCIM API)
+  - name: apiKey
+    label: SCIM API Token
+    type: string
+    required: true
+    secret: true
+    description: The SCIM API token generated from the Provision tab in your Zapier
+      account.
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/zapier-scim
+categories:
+- dev-tools
+tags:
+- zapier-scim
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.199858'

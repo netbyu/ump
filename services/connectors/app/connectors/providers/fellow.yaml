@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.959343
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: fellow
+name: Fellow
+description: Fellow API integration
+version: 1.0.0
+base_url: https://${connectionConfig.subdomain}.fellow.app/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Fellow
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: Your Fellow API Key
+    example: ab84bc2056614635866e4a98c153d7a1ab30541032fd433793d402f2a5db2404
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/api-integrations/fellow
+categories:
+- productivity
+tags:
+- fellow
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.959343'

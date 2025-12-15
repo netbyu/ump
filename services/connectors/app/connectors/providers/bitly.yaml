@@ -1,0 +1,33 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.889149
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: bitly
+name: Bitly
+description: Bitly API integration
+version: 1.0.0
+base_url: https://api-ssl.bitly.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://bitly.com/oauth/authorize
+    token_url: https://api-ssl.bitly.com/oauth/access_token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/bitly
+categories:
+- marketing
+- social
+tags:
+- bitly
+- marketing
+- social
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.889149'

@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.164018
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: tiktok-ads
+name: TikTok Ads
+description: TikTok Ads API integration
+version: 1.0.0
+base_url: https://business-api.tiktok.com/open_api/v1.3/
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://business-api.tiktok.com/portal/auth
+    token_url: https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/
+    token_params:
+      grant_type: authorization_code
+documentation_url: https://nango.dev/docs/integrations/all/tiktok-ads
+categories:
+- social
+tags:
+- tiktok-ads
+- social
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.164018'

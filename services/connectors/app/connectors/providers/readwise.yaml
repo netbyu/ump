@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.107281
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: readwise
+name: Readwise
+description: Readwise API integration
+version: 1.0.0
+base_url: https://readwise.io/api/v2
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Readwise
+  - name: apiKey
+    label: Access Token
+    type: string
+    required: true
+    secret: true
+    description: The Access Token for your Readwise account
+    example: zCDL1fUOpu4Cg3WMlMl1S7ecKsaBQlfCzw7sbVfc0wBqUJMI56
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/readwise
+categories:
+- productivity
+tags:
+- readwise
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.107281'

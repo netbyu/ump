@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.971562
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: front
+name: Front
+description: Front API integration
+version: 1.0.0
+base_url: https://api2.frontapp.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://app.frontapp.com/oauth/authorize
+    token_url: https://app.frontapp.com/oauth/token
+documentation_url: https://nango.dev/docs/integrations/all/front
+categories:
+- support
+- ticketing
+tags:
+- front
+- support
+- ticketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.971562'

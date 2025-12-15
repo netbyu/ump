@@ -1,0 +1,32 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.858154
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: autodesk
+name: Autodesk
+description: Autodesk API integration
+version: 1.0.0
+base_url: https://developer.api.autodesk.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://developer.api.autodesk.com/authentication/v2/authorize
+    token_url: https://developer.api.autodesk.com/authentication/v2/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/autodesk
+categories:
+- design
+tags:
+- autodesk
+- design
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.858154'

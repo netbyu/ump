@@ -1,0 +1,29 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.926377
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: coros-sandbox
+name: Coros (Sandbox)
+description: Coros (Sandbox) API integration
+version: 1.0.0
+base_url: https://opentest.coros.com
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://opentest.coros.com/oauth2/authorize
+    token_url: https://opentest.coros.com/oauth2/accesstoken
+    refresh_url: https://opentest.coros.com/oauth2/refresh-token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/coros-sandbox
+tags:
+- coros-sandbox
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.926377'

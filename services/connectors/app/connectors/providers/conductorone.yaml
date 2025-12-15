@@ -1,0 +1,39 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.919733
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: conductorone
+name: ConductorOne
+description: ConductorOne API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}/api
+auth:
+  type: custom
+  fields:
+  - name: client_id
+    label: Client ID
+    type: string
+    required: true
+    secret: false
+    description: Your ConductorOne Client ID
+    example: strange-hydra-68836@acme.conductor.one/pcc
+  - name: client_secret
+    label: Client Secret
+    type: string
+    required: true
+    secret: true
+    description: Your ConductorOne Client Secret
+    example: secret-token:conductorone.com:v1:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IkMySEx5Y0d6eUhfZDQwcjJvejZoNkpqdndvRVFBZ0FTRVc2eDB6emh6Y2MiLCJkIjoiLTgzVkxXUVUtZVhQY0ZCWVhDb2NpU29XVmhrYnRXUm9zdkZUZ3JqcXNVbyJ9
+documentation_url: https://nango.dev/docs/api-integrations/conductorone
+categories:
+- productivity
+tags:
+- conductorone
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.919733'

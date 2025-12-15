@@ -1,0 +1,48 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.876526
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: avalara
+name: Avalara
+description: Avalara API integration
+version: 1.0.0
+base_url: https://rest.avatax.com/api/v2
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: User Name / Account ID
+    type: string
+    required: true
+    secret: false
+    description: Avalara User Name / Account ID
+  - name: password
+    label: Avalara Password / License Key
+    type: string
+    required: true
+    secret: false
+    description: Your Password / License Key
+documentation_url: https://nango.dev/docs/integrations/all/avalara
+categories:
+- legal
+tags:
+- avalara
+- legal
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.876526'

@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.915023
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: clerk
+name: Clerk
+description: Clerk API integration
+version: 1.0.0
+base_url: https://api.clerk.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Clerk
+  - name: apiKey
+    label: Secret Key
+    type: string
+    required: true
+    secret: true
+    description: Your Clerk Secret Key (starts with sk_test_ or sk_live_)
+    example: sk_test_abcdefghijklmnop123456789
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/clerk
+categories:
+- dev-tools
+- other
+tags:
+- clerk
+- dev-tools
+- other
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.915023'

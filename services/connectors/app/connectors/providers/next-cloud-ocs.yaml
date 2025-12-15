@@ -1,0 +1,33 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.064838
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: next-cloud-ocs
+name: Next Cloud OCS
+description: Next Cloud OCS API integration
+version: 1.0.0
+base_url: https://${connectionConfig.domain}/ocs/v1.php
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+documentation_url: http://nango.dev/docs/integrations/all/next-cloud-ocs
+tags:
+- next-cloud-ocs
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.064838'

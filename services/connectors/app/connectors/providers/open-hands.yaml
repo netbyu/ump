@@ -1,0 +1,41 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.073852
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: open-hands
+name: Open Hands
+description: Open Hands API integration
+version: 1.0.0
+base_url: https://app.all-hands.dev
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Open Hands
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API Key for your Open Hands account
+    example: aNVlyRBLGWJgnVp1vwXN7TkO1MCYxeIDz
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/open-hands
+categories:
+- dev-tools
+tags:
+- open-hands
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.073852'

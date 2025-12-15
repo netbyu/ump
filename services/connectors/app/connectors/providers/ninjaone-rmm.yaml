@@ -1,0 +1,39 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.065359
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ninjaone-rmm
+name: NinjaOne RMM
+description: NinjaOne RMM API integration
+version: 1.0.0
+base_url: https://app.ninjarmm.com
+auth:
+  type: custom
+  fields:
+  - name: client_id
+    label: Client ID
+    type: string
+    required: true
+    secret: false
+    description: Your NinjaOne RMM OAuth Client ID
+    example: KTmhkNf1_dZZVPmIQTK_lH2DCNJ
+  - name: client_secret
+    label: Client Secret
+    type: string
+    required: true
+    secret: true
+    description: Your NinjaOne RMM OAuth Client Secret
+    example: Ilfs4crKIU1t-5bde-2OMBsB9v3LGmfg82XJO7_q9TtgTnfNRmK
+documentation_url: https://nango.dev/docs/integrations/all/ninjaone-rmm
+categories:
+- support
+tags:
+- ninjaone-rmm
+- support
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.065359'

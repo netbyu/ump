@@ -1,0 +1,38 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.125759
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sap-success-factors
+name: SAP SuccessFactors
+description: SAP SuccessFactors API integration
+version: 1.0.0
+base_url: https://${connectionConfig.apiServer}
+auth:
+  type: two_step
+  fields:
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your SAP SuccessFactors account
+    example: YzA4MTVhMTQzZTUzMjc3NTk0ZDY2Nzc1ZmVkOA
+  - name: assertion
+    label: SAML Assertion
+    type: string
+    required: true
+    secret: false
+    description: The SAML Assertion generated for your SAP SuccessFactors account
+documentation_url: https://nango.dev/docs/integrations/all/sap-success-factors
+categories:
+- hr
+tags:
+- sap-success-factors
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.125759'

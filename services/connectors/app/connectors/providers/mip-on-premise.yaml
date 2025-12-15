@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.056918
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: mip-on-premise
+name: MIP On Premise
+description: MIP On Premise API integration
+version: 1.0.0
+base_url: https://api.mip.com
+auth:
+  type: two_step
+  fields:
+  - name: login
+    label: ID
+    type: string
+    required: true
+    secret: false
+    description: Your Login ID for MIP Fund Accounting
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: false
+    description: Your Password for MIP Fund Accounting.
+  - name: org
+    label: ORG
+    type: string
+    required: true
+    secret: false
+    description: The MIP Fund Accounting database you will be using.
+documentation_url: https://nango.dev/docs/integrations/all/mip-on-premise
+categories:
+- accounting
+tags:
+- mip-on-premise
+- accounting
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.056918'

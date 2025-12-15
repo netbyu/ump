@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.205648
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: zoho-people
+name: Zoho People
+description: Zoho People API integration
+version: 1.0.0
+base_url: https://people.zoho.com
+auth:
+  type: none
+documentation_url: https://nango.dev/docs/integrations/all/zoho-people
+categories:
+- hr
+tags:
+- zoho-people
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.205648'

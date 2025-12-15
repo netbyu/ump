@@ -1,0 +1,46 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.079249
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: passportal
+name: Passportal
+description: Passportal API integration
+version: 1.0.0
+base_url: https://${connectionConfig.base_url}
+auth:
+  type: two_step
+  fields:
+  - name: apiKey
+    label: API Access Key ID
+    type: string
+    required: true
+    secret: true
+    description: Your Passportal API Access Key ID
+    example: a14e6b4923ba5027189baded6ba7b68e6fcda742008c5d57b867f43a09768ece
+  - name: hmacToken
+    label: HMAC Token
+    type: string
+    required: true
+    secret: false
+    description: Your pre-generated HMAC token, hex encoded
+    example: 23ec313efecb560a7f44239f6dd439ea56d18911c18b59e1150a3c7299da8202
+  - name: content
+    label: Content String
+    type: string
+    required: true
+    secret: false
+    description: Plain text message used to compute the HMAC token
+    example: api-content-hash
+documentation_url: https://nango.dev/docs/integrations/all/passportal
+categories:
+- support
+tags:
+- passportal
+- support
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.079249'

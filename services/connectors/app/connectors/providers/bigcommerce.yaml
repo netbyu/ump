@@ -1,0 +1,35 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.886392
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: bigcommerce
+name: BigCommerce
+description: BigCommerce API integration
+version: 1.0.0
+base_url: https://api.bigcommerce.com/stores/${connectionConfig.storeHash}
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://login.bigcommerce.com/oauth2/authorize
+    token_url: https://login.bigcommerce.com/oauth2/token
+    token_params:
+      context: stores/${connectionConfig.storeHash}
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+      context: stores/${connectionConfig.storeHash}
+      account_uuid: ${connectionConfig.accountUuid}
+    scope_separator: ' '
+documentation_url: https://nango.dev/docs/integrations/all/bigcommerce
+categories:
+- e-commerce
+tags:
+- bigcommerce
+- e-commerce
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.886392'

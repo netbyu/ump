@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.883545
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: basecamp
+name: Basecamp
+description: Basecamp API integration
+version: 1.0.0
+base_url: https://3.basecampapi.com/${connectionConfig.accountId}
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://launchpad.37signals.com/authorization/new
+    token_url: https://launchpad.37signals.com/authorization/token
+    token_params:
+      type: web_server
+    authorization_params:
+      type: web_server
+documentation_url: https://nango.dev/docs/integrations/all/basecamp
+categories:
+- productivity
+tags:
+- basecamp
+- productivity
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.883545'

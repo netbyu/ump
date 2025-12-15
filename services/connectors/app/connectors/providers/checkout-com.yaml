@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.910913
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: checkout-com
+name: Checkout.com
+description: Checkout.com API integration
+version: 1.0.0
+base_url: https://api.checkout.com
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/checkout-com
+categories:
+- payment
+tags:
+- checkout-com
+- payment
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.910913'

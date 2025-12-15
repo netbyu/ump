@@ -1,0 +1,32 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.122144
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: sage-people
+name: Sage People
+description: Sage People API integration
+version: 1.0.0
+base_url: https://${connectionConfig.instance_url}/services/apexrest/spapi
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://login.salesforce.com/services/oauth2/authorize
+    token_url: https://login.salesforce.com/services/oauth2/token
+    scopes:
+    - offline_access
+    - api
+    authorization_params:
+      prompt: consent
+documentation_url: https://nango.dev/docs/integrations/all/sage-people
+categories:
+- hr
+tags:
+- sage-people
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.122144'

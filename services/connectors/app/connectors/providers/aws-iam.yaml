@@ -1,0 +1,48 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.879041
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: aws-iam
+name: AWS IAM
+description: AWS IAM API integration
+version: 1.0.0
+base_url: https://iam.amazonaws.com
+auth:
+  type: basic
+  fields:
+  - name: username
+    label: Username
+    type: string
+    required: true
+    description: Username for basic auth
+  - name: password
+    label: Password
+    type: string
+    required: true
+    secret: true
+    description: Password for basic auth
+  - name: username
+    label: AWS Access Key ID
+    type: string
+    required: true
+    secret: false
+    description: Your Access Key ID
+  - name: password
+    label: AWS Secret Access Key
+    type: string
+    required: true
+    secret: false
+    description: Your Secret Access Key
+documentation_url: https://nango.dev/docs/integrations/all/aws-iam
+categories:
+- dev-tools
+tags:
+- aws-iam
+- dev-tools
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.879041'

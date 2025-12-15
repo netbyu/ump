@@ -1,0 +1,32 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.202043
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: zoho
+name: Zoho
+description: Zoho API integration
+version: 1.0.0
+base_url: https://www.zohoapis.${connectionConfig.extension} || ${connectionConfig.api_domain}
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://accounts.zoho.${connectionConfig.extension}/oauth/v2/auth
+      || https://accounts.zoho.com/oauth/v2/auth
+    token_url: https://accounts.zoho.${connectionConfig.extension}/oauth/v2/token
+      || ${connectionConfig.accounts-server}/oauth/v2/token
+    authorization_params:
+      prompt: consent
+      access_type: offline
+documentation_url: https://nango.dev/docs/integrations/all/zoho
+categories:
+- accounting
+tags:
+- zoho
+- accounting
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.202043'

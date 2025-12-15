@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.180520
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ukg-ready
+name: UKG Ready
+description: UKG Ready API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/ukg-ready
+categories:
+- hr
+tags:
+- ukg-ready
+- hr
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.180520'

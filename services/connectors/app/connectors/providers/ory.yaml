@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.075198
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: ory
+name: Ory
+description: Ory API integration
+version: 1.0.0
+base_url: https://${connectionConfig.projectSlug}.projects.oryapis.com
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/ory
+categories:
+- other
+tags:
+- ory
+- other
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.075198'

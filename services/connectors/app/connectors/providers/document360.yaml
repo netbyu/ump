@@ -1,0 +1,40 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.939282
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: document360
+name: Document360
+description: Document360 API integration
+version: 1.0.0
+base_url: https://api.document360.com
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for Document360
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API key for your Document360 account
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/document360
+categories:
+- knowledge-base
+tags:
+- document360
+- knowledge-base
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.939282'

@@ -1,0 +1,43 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.844572
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: active-campaign
+name: ActiveCampaign
+description: ActiveCampaign API integration
+version: 1.0.0
+base_url: https://${connectionConfig.hostname}/api
+auth:
+  type: api_key
+  fields:
+  - name: api_key
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: API Key for ActiveCampaign
+  - name: apiKey
+    label: API Key
+    type: string
+    required: true
+    secret: true
+    description: The API Key for your ActiveCampaign account
+    example: b4f1a7c9d8e56320a9db472fe6c8351f2e0a4d98b7f6c3e5d9a2f4701b3e8d6c3455abbe
+  api_key:
+    header_name: Authorization
+    in_location: header
+documentation_url: https://nango.dev/docs/integrations/all/active-campaign
+categories:
+- marketing
+- communication
+tags:
+- active-campaign
+- marketing
+- communication
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.844572'

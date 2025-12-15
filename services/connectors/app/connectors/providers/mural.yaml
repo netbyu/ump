@@ -1,0 +1,31 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.061712
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: mural
+name: Mural
+description: Mural API integration
+version: 1.0.0
+base_url: https://app.mural.co
+auth:
+  type: oauth2
+  oauth2:
+    authorization_url: https://app.mural.co/api/public/v1/authorization/oauth2
+    token_url: https://app.mural.co/api/public/v1/authorization/oauth2/token
+    token_params:
+      grant_type: authorization_code
+    authorization_params:
+      response_type: code
+documentation_url: https://nango.dev/docs/integrations/all/mural
+categories:
+- design
+tags:
+- mural
+- design
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.061712'

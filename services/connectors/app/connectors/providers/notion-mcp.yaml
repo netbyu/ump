@@ -1,0 +1,27 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.066436
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: notion-mcp
+name: Notion (MCP)
+description: Notion (MCP) API integration
+version: 1.0.0
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/api-integrations/notion
+categories:
+- knowledge-base
+- productivity
+- mcp
+tags:
+- notion-mcp
+- knowledge-base
+- productivity
+- mcp
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.066436'

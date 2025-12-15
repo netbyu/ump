@@ -1,0 +1,24 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:13.053034
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: microsoft-business-central
+name: Microsoft Business Central
+description: Microsoft Business Central API integration
+version: 1.0.0
+base_url: https://api.businesscentral.dynamics.com/v2.0/${connectionConfig.tenantId}/${connectionConfig.environmentName}
+auth:
+  type: custom
+documentation_url: https://nango.dev/docs/integrations/all/microsoft-business-central
+categories:
+- erp
+tags:
+- microsoft-business-central
+- erp
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:13.053034'

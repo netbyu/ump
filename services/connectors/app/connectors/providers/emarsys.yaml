@@ -1,0 +1,37 @@
+# UCMP Connector Manifest
+# Auto-converted from Nango providers.yaml
+# Source: https://github.com/NangoHQ/nango
+# Converted: 2025-12-15T12:42:12.944835
+#
+# NOTE: This manifest contains auth configuration only.
+# Actions need to be added based on the API documentation.
+
+id: emarsys
+name: Emarsys Core API (WSSE)
+description: Emarsys Core API (WSSE) API integration
+version: 1.0.0
+base_url: https://api.emarsys.net
+auth:
+  type: signature
+  fields:
+  - name: username
+    label: ID
+    type: string
+    required: true
+    secret: false
+    description: The ID of your Emarsys WSSE API Credentials
+  - name: password
+    label: Client Secret
+    type: string
+    required: true
+    secret: false
+    description: The Client Secret of your Emarsys WSSE API Credentials
+documentation_url: https://nango.dev/docs/integrations/all/emarsys
+categories:
+- marketing
+tags:
+- emarsys
+- marketing
+supports_webhooks: false
+nango_source: true
+converted_at: '2025-12-15T12:42:12.944835'
