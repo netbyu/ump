@@ -9,7 +9,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from ..core.base import (
+from .base import (
     ConnectorBase,
     ConnectorMetadata,
     AuthConfig,
@@ -25,7 +25,7 @@ from ..core.base import (
     AuthenticationError,
     ConnectorError,
 )
-from ..core.registry import register_connector
+from .registry import register_connector
 
 logger = logging.getLogger(__name__)
 

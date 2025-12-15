@@ -1,5 +1,7 @@
 """
-Core connector module.
+Connectors Module
+=================
+Connector framework core components and implementations.
 """
 
 from .base import (
@@ -21,9 +23,8 @@ from .base import (
     RateLimitError,
     ValidationError,
 )
-
 from .registry import ConnectorRegistry, register_connector
-from .credentials import CredentialManager, InMemoryCredentialBackend, PostgresCredentialBackend
+from .credentials import CredentialManager, InMemoryCredentialBackend
 from .schema import SchemaRegistry
 
 __all__ = [
@@ -41,22 +42,17 @@ __all__ = [
     "FieldType",
     "ExecutionContext",
     "ExecutionResult",
-
     # Exceptions
     "ConnectorError",
     "AuthenticationError",
     "RateLimitError",
     "ValidationError",
-
     # Registry
     "ConnectorRegistry",
     "register_connector",
-
     # Credentials
     "CredentialManager",
     "InMemoryCredentialBackend",
-    "PostgresCredentialBackend",
-
     # Schema
     "SchemaRegistry",
 ]

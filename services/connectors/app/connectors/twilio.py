@@ -11,7 +11,7 @@ import httpx
 import base64
 import logging
 
-from ..core.base import (
+from .base import (
     ConnectorBase,
     ConnectorMetadata,
     AuthConfig,
@@ -27,7 +27,7 @@ from ..core.base import (
     AuthenticationError,
     RateLimitError,
 )
-from ..core.registry import register_connector
+from .registry import register_connector
 
 logger = logging.getLogger(__name__)
 
