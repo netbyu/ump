@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ump-postgres
+    environment:
+      POSTGRES_USER: ump
+      POSTGRES_PASSWORD: ump_secret
+      POSTGRES_DB: ump
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ump"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Main API Backend
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: ump-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ump:ump_secret@postgres:5432/ump
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/api:/app
+
+  # RBAC Service
+  rbac:
+    build:
+      context: ./services/rbac
+      dockerfile: Dockerfile
+    container_name: ump-rbac
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ump:ump_secret@postgres:5432/ump_rbac
+      JWT_SECRET_KEY: your-secret-key-change-in-production
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/rbac:/app
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: ump-web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_RBAC_URL: http://localhost:8001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+      - rbac
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
