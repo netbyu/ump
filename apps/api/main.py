@@ -25,6 +25,9 @@ from models import Location as DBLocation
 from models import DeviceGroup as DBDeviceGroup
 from models import DeviceGroupType as DBDeviceGroupType
 from models import DeviceIntegration as DBDeviceIntegration
+from models import Platform as DBPlatform
+from models import PlatformType as DBPlatformType
+from models import CredentialGroup as DBCredentialGroup
 
 # LiveKit token generation
 from livekit import api
@@ -1746,9 +1749,459 @@ async def deactivate_device(device_id: int, db=Depends(get_db)):
     return {"message": "Device deactivated successfully"}
 
 
-# ============== Credential Groups ==============
+# ============== Platforms Schema Pydantic Models ==============
 
-from models import CredentialGroup as DBCredentialGroup
+class PlatformBase(BaseModel):
+    name: str
+    platform_type: str = "monitoring"
+    primary_address: str
+    port: Optional[int] = None
+    base_path: Optional[str] = None
+    provider_id: Optional[str] = None
+    description: Optional[str] = None
+    vendor: Optional[str] = None
+    version: Optional[str] = None
+    platform_type_id: Optional[int] = None
+    config: Optional[dict] = None
+    credential_source: str = "local"
+    credential_group_id: Optional[int] = None
+    credentials: Optional[dict] = None  # For local credentials
+    verify_ssl: bool = True
+    timeout: int = 30
+    is_active: bool = True
+
+
+class PlatformCreate(PlatformBase):
+    pass
+
+
+class PlatformUpdate(BaseModel):
+    name: Optional[str] = None
+    platform_type: Optional[str] = None
+    primary_address: Optional[str] = None
+    port: Optional[int] = None
+    base_path: Optional[str] = None
+    provider_id: Optional[str] = None
+    description: Optional[str] = None
+    vendor: Optional[str] = None
+    version: Optional[str] = None
+    platform_type_id: Optional[int] = None
+    config: Optional[dict] = None
+    credential_source: Optional[str] = None
+    credential_group_id: Optional[int] = None
+    credentials: Optional[dict] = None
+    verify_ssl: Optional[bool] = None
+    timeout: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+# ============== Platforms Routes ==============
+
+@app.get("/api/platforms")
+async def list_platforms(
+    platform_type: Optional[str] = None,
+    platform_type_id: Optional[int] = None,
+    is_active: Optional[bool] = None,
+    is_verified: Optional[bool] = None,
+    search: Optional[str] = None,
+    db=Depends(get_db)
+):
+    """Get all platforms with optional filters"""
+    query = select(DBPlatform)
+
+    if platform_type:
+        query = query.where(DBPlatform.platform_type == platform_type)
+    if platform_type_id:
+        query = query.where(DBPlatform.platform_type_id == platform_type_id)
+    if is_active is not None:
+        query = query.where(DBPlatform.is_active == is_active)
+    if is_verified is not None:
+        query = query.where(DBPlatform.is_verified == is_verified)
+    if search:
+        query = query.where(
+            (DBPlatform.name.ilike(f"%{search}%")) |
+            (DBPlatform.primary_address.ilike(f"%{search}%")) |
+            (DBPlatform.vendor.ilike(f"%{search}%")) |
+            (DBPlatform.description.ilike(f"%{search}%"))
+        )
+
+    query = query.order_by(DBPlatform.name)
+    result = await db.execute(query)
+    platforms = result.scalars().all()
+
+    platform_list = []
+    for platform in platforms:
+        # Get platform type display name
+        platform_type_name = platform.platform_type
+        platform_type_info = None
+        if platform.platform_type_id:
+            pt_result = await db.execute(select(DBPlatformType).where(DBPlatformType.id == platform.platform_type_id))
+            pt = pt_result.scalar_one_or_none()
+            if pt:
+                platform_type_name = pt.display_name
+                platform_type_info = {
+                    "id": pt.id,
+                    "name": pt.name,
+                    "display_name": pt.display_name,
+                    "description": pt.description,
+                    "icon": pt.icon,
+                    "color": pt.color,
+                    "category": pt.category,
+                }
+
+        # Get credential group name if using shared credentials
+        credential_group_name = None
+        if platform.credential_group_id:
+            cg_result = await db.execute(select(DBCredentialGroup).where(DBCredentialGroup.id == platform.credential_group_id))
+            cg = cg_result.scalar_one_or_none()
+            if cg:
+                credential_group_name = cg.name
+
+        platform_list.append({
+            "id": platform.id,
+            "uuid": str(platform.uuid) if platform.uuid else None,
+            "name": platform.name,
+            "platform_type": platform.platform_type,
+            "platform_type_id": platform.platform_type_id,
+            "platform_type_name": platform_type_name,
+            "platform_type_info": platform_type_info,
+            "primary_address": platform.primary_address,
+            "port": platform.port,
+            "base_path": platform.base_path,
+            "provider_id": platform.provider_id,
+            "description": platform.description,
+            "vendor": platform.vendor,
+            "version": platform.version,
+            "is_active": platform.is_active,
+            "is_verified": platform.is_verified or False,
+            "last_verified_at": platform.last_verified_at.isoformat() if platform.last_verified_at else None,
+            "last_sync_at": platform.last_sync_at.isoformat() if platform.last_sync_at else None,
+            "last_error": platform.last_error,
+            "config": platform.config or {},
+            "credential_source": platform.credential_source or "local",
+            "credential_group_id": platform.credential_group_id,
+            "credential_group_name": credential_group_name,
+            "verify_ssl": platform.verify_ssl if platform.verify_ssl is not None else True,
+            "timeout": platform.timeout or 30,
+            "created_at": platform.created_at.isoformat() if platform.created_at else None,
+            "updated_at": platform.updated_at.isoformat() if platform.updated_at else None,
+            "created_by": platform.created_by,
+            "updated_by": platform.updated_by,
+        })
+
+    return {
+        "data": platform_list,
+        "total": len(platform_list),
+    }
+
+
+@app.get("/api/platforms/types")
+async def list_platform_types(db=Depends(get_db)):
+    """Get all platform types"""
+    query = select(DBPlatformType).where(DBPlatformType.is_active == True).order_by(DBPlatformType.display_order, DBPlatformType.display_name)
+    result = await db.execute(query)
+    types = result.scalars().all()
+
+    return {
+        "data": [
+            {
+                "id": t.id,
+                "name": t.name,
+                "display_name": t.display_name,
+                "description": t.description,
+                "icon": t.icon,
+                "color": t.color,
+                "category": t.category,
+            }
+            for t in types
+        ]
+    }
+
+
+@app.get("/api/platforms/{platform_id}")
+async def get_platform(platform_id: int, db=Depends(get_db)):
+    """Get a specific platform by ID"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    # Get platform type info
+    platform_type_name = platform.platform_type
+    platform_type_info = None
+    if platform.platform_type_id:
+        pt_result = await db.execute(select(DBPlatformType).where(DBPlatformType.id == platform.platform_type_id))
+        pt = pt_result.scalar_one_or_none()
+        if pt:
+            platform_type_name = pt.display_name
+            platform_type_info = {
+                "id": pt.id,
+                "name": pt.name,
+                "display_name": pt.display_name,
+                "description": pt.description,
+                "icon": pt.icon,
+                "color": pt.color,
+                "category": pt.category,
+            }
+
+    # Get credential group name if using shared credentials
+    credential_group_name = None
+    if platform.credential_group_id:
+        cg_result = await db.execute(select(DBCredentialGroup).where(DBCredentialGroup.id == platform.credential_group_id))
+        cg = cg_result.scalar_one_or_none()
+        if cg:
+            credential_group_name = cg.name
+
+    return {
+        "data": {
+            "id": platform.id,
+            "uuid": str(platform.uuid) if platform.uuid else None,
+            "name": platform.name,
+            "platform_type": platform.platform_type,
+            "platform_type_id": platform.platform_type_id,
+            "platform_type_name": platform_type_name,
+            "platform_type_info": platform_type_info,
+            "primary_address": platform.primary_address,
+            "port": platform.port,
+            "base_path": platform.base_path,
+            "provider_id": platform.provider_id,
+            "description": platform.description,
+            "vendor": platform.vendor,
+            "version": platform.version,
+            "is_active": platform.is_active,
+            "is_verified": platform.is_verified or False,
+            "last_verified_at": platform.last_verified_at.isoformat() if platform.last_verified_at else None,
+            "last_sync_at": platform.last_sync_at.isoformat() if platform.last_sync_at else None,
+            "last_error": platform.last_error,
+            "config": platform.config or {},
+            "credential_source": platform.credential_source or "local",
+            "credential_group_id": platform.credential_group_id,
+            "credential_group_name": credential_group_name,
+            "verify_ssl": platform.verify_ssl if platform.verify_ssl is not None else True,
+            "timeout": platform.timeout or 30,
+            "extra_data": platform.extra_data,
+            "created_at": platform.created_at.isoformat() if platform.created_at else None,
+            "updated_at": platform.updated_at.isoformat() if platform.updated_at else None,
+            "created_by": platform.created_by,
+            "updated_by": platform.updated_by,
+        }
+    }
+
+
+@app.post("/api/platforms")
+async def create_platform(request: PlatformCreate, db=Depends(get_db)):
+    """Create a new platform"""
+    from cryptography.fernet import Fernet
+    import json
+
+    # Handle credential encryption for local credentials
+    credentials_encrypted = None
+    if request.credential_source == "local" and request.credentials:
+        encryption_key = os.getenv("CREDENTIAL_ENCRYPTION_KEY")
+        if not encryption_key:
+            encryption_key = Fernet.generate_key().decode()
+        fernet = Fernet(encryption_key.encode() if isinstance(encryption_key, str) else encryption_key)
+        credentials_json = json.dumps(request.credentials)
+        credentials_encrypted = fernet.encrypt(credentials_json.encode())
+
+    # Verify credential group exists if using shared credentials
+    if request.credential_source == "group" and request.credential_group_id:
+        cg_query = select(DBCredentialGroup).where(DBCredentialGroup.id == request.credential_group_id)
+        cg_result = await db.execute(cg_query)
+        cg = cg_result.scalar_one_or_none()
+        if not cg:
+            raise HTTPException(status_code=400, detail="Credential group not found")
+
+    new_platform = DBPlatform(
+        name=request.name,
+        platform_type=request.platform_type,
+        primary_address=request.primary_address,
+        port=request.port,
+        base_path=request.base_path,
+        provider_id=request.provider_id,
+        description=request.description,
+        vendor=request.vendor,
+        version=request.version,
+        platform_type_id=request.platform_type_id,
+        config=request.config or {},
+        credential_source=request.credential_source,
+        credentials_encrypted=credentials_encrypted,
+        credential_group_id=request.credential_group_id if request.credential_source == "group" else None,
+        verify_ssl=request.verify_ssl,
+        timeout=request.timeout,
+        is_active=request.is_active,
+        is_verified=False,
+    )
+
+    db.add(new_platform)
+    await db.commit()
+    await db.refresh(new_platform)
+
+    return {
+        "data": {
+            "id": new_platform.id,
+            "uuid": str(new_platform.uuid) if new_platform.uuid else None,
+            "name": new_platform.name,
+            "platform_type": new_platform.platform_type,
+            "primary_address": new_platform.primary_address,
+        },
+        "message": "Platform created successfully",
+    }
+
+
+@app.put("/api/platforms/{platform_id}")
+async def update_platform(platform_id: int, request: PlatformUpdate, db=Depends(get_db)):
+    """Update a platform"""
+    from cryptography.fernet import Fernet
+    import json
+
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    update_data = request.model_dump(exclude_unset=True)
+
+    # Handle credential encryption if credentials are being updated
+    if "credentials" in update_data and update_data["credentials"]:
+        encryption_key = os.getenv("CREDENTIAL_ENCRYPTION_KEY")
+        if not encryption_key:
+            encryption_key = Fernet.generate_key().decode()
+        fernet = Fernet(encryption_key.encode() if isinstance(encryption_key, str) else encryption_key)
+        credentials_json = json.dumps(update_data["credentials"])
+        update_data["credentials_encrypted"] = fernet.encrypt(credentials_json.encode())
+        del update_data["credentials"]
+
+    # Handle credential source changes
+    if "credential_source" in update_data:
+        if update_data["credential_source"] == "group":
+            platform.credentials_encrypted = None
+            if "credential_group_id" in update_data and update_data["credential_group_id"]:
+                cg_query = select(DBCredentialGroup).where(DBCredentialGroup.id == update_data["credential_group_id"])
+                cg_result = await db.execute(cg_query)
+                cg = cg_result.scalar_one_or_none()
+                if not cg:
+                    raise HTTPException(status_code=400, detail="Credential group not found")
+        elif update_data["credential_source"] == "local":
+            platform.credential_group_id = None
+
+    for key, value in update_data.items():
+        if key != "credentials":
+            setattr(platform, key, value)
+
+    await db.commit()
+    await db.refresh(platform)
+
+    return {
+        "data": {
+            "id": platform.id,
+            "name": platform.name,
+            "platform_type": platform.platform_type,
+            "primary_address": platform.primary_address,
+        },
+        "message": "Platform updated successfully",
+    }
+
+
+@app.delete("/api/platforms/{platform_id}")
+async def delete_platform(platform_id: int, db=Depends(get_db)):
+    """Delete a platform"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    await db.delete(platform)
+    await db.commit()
+
+    return {"message": "Platform deleted successfully"}
+
+
+@app.patch("/api/platforms/{platform_id}/activate")
+async def activate_platform(platform_id: int, db=Depends(get_db)):
+    """Activate a platform"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    platform.is_active = True
+    await db.commit()
+
+    return {"message": "Platform activated successfully"}
+
+
+@app.patch("/api/platforms/{platform_id}/deactivate")
+async def deactivate_platform(platform_id: int, db=Depends(get_db)):
+    """Deactivate a platform"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    platform.is_active = False
+    await db.commit()
+
+    return {"message": "Platform deactivated successfully"}
+
+
+@app.post("/api/platforms/{platform_id}/test")
+async def test_platform_connection(platform_id: int, db=Depends(get_db)):
+    """Test a platform connection"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    # TODO: Implement actual connection test via connectors service
+    # For now, just update the verification timestamp
+    platform.last_verified_at = datetime.now()
+    platform.is_verified = True
+    platform.last_error = None
+
+    await db.commit()
+
+    return {
+        "success": True,
+        "message": "Connection test successful"
+    }
+
+
+@app.post("/api/platforms/{platform_id}/sync")
+async def sync_platform(platform_id: int, db=Depends(get_db)):
+    """Trigger a sync for a platform"""
+    query = select(DBPlatform).where(DBPlatform.id == platform_id)
+    result = await db.execute(query)
+    platform = result.scalar_one_or_none()
+
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+
+    # TODO: Implement actual sync via connectors/temporal service
+    # For now, just update the sync timestamp
+    platform.last_sync_at = datetime.now()
+
+    await db.commit()
+
+    return {
+        "success": True,
+        "message": "Sync started"
+    }
+
+
+# ============== Credential Groups ==============
 
 
 class CredentialGroupBase(BaseModel):

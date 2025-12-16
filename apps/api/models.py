@@ -460,6 +460,92 @@ class DeviceCredential(Base):
     device_integration = relationship("DeviceIntegration", back_populates="credential_records", foreign_keys=[device_integration_id])
 
 
+# ============== Platforms Schema Models ==============
+
+class PlatformType(Base):
+    """Lookup table for platform types (e.g., monitoring, management, provisioning)"""
+    __tablename__ = "platform_types"
+    __table_args__ = {"schema": "platforms"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False, unique=True)  # monitoring, management, provisioning, etc.
+    display_name = Column(String(100), nullable=False)
+    description = Column(Text)
+    icon = Column(String(50))
+    color = Column(String(20))
+    category = Column(String(50))  # monitoring, telecom, infrastructure, etc.
+    is_active = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
+    extra_data = Column(JSONB, default={})
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    platforms = relationship("Platform", back_populates="platform_type_rel")
+
+
+class Platform(Base):
+    """
+    Platforms are external services/systems that we query for device-related information.
+
+    Unlike Devices (which are physical/virtual endpoints), Platforms are management
+    systems, monitoring platforms, or service endpoints that aggregate or control
+    multiple devices. Examples: Zabbix, Avaya SMGR, Cisco UCM, Portainer, etc.
+    """
+    __tablename__ = "platforms"
+    __table_args__ = {"schema": "platforms"}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, nullable=False, server_default=func.gen_random_uuid())
+    name = Column(String(200), nullable=False)
+    platform_type = Column(String(50), nullable=False)  # Legacy string field
+    platform_type_id = Column(Integer, ForeignKey("platforms.platform_types.id"))
+
+    # Connection information
+    primary_address = Column(String(500), nullable=False)  # Base URL or hostname
+    port = Column(Integer)
+    base_path = Column(String(200))  # API base path (e.g., /api/v1)
+
+    # Provider link (from connectors service catalog)
+    provider_id = Column(String(100))
+
+    description = Column(Text)
+
+    # Vendor info
+    vendor = Column(String(100))
+    version = Column(String(50))
+
+    # Status
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    last_verified_at = Column(DateTime(timezone=True))
+    last_sync_at = Column(DateTime(timezone=True))
+    last_error = Column(Text)
+
+    # Configuration
+    config = Column(JSONB, default={})
+
+    # Credential settings (similar pattern to DeviceIntegration)
+    credential_source = Column(String(20), default="local")  # local, group
+    credentials_encrypted = Column(BYTEA)
+    credential_group_id = Column(Integer, ForeignKey("devices.credential_groups.id"))
+
+    # SSL/Connection settings
+    verify_ssl = Column(Boolean, default=True)
+    timeout = Column(Integer, default=30)
+
+    # Metadata
+    extra_data = Column(JSONB, default={})
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_by = Column(String)
+    updated_by = Column(String)
+
+    # Relationships
+    platform_type_rel = relationship("PlatformType", back_populates="platforms")
+    credential_group = relationship("CredentialGroup", foreign_keys=[credential_group_id])
+
+
 class DeviceSSHConfig(Base):
     """SSH connection configuration"""
     __tablename__ = "ssh_configs"

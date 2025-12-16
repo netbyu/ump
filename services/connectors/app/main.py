@@ -21,6 +21,7 @@ from app.routers import (
     connectors_router,
     credentials_router,
     execution_router,
+    nodes_router,
 )
 
 
@@ -66,6 +67,7 @@ app.include_router(providers_router, prefix=settings.API_PREFIX)
 app.include_router(connectors_router, prefix=settings.API_PREFIX)
 app.include_router(credentials_router, prefix=settings.API_PREFIX)
 app.include_router(execution_router, prefix=settings.API_PREFIX)
+app.include_router(nodes_router, prefix=settings.API_PREFIX)
 
 
 @app.get("/health", tags=["Health"])

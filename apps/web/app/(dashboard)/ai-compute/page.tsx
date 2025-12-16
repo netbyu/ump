@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,9 @@ import {
   Plus,
   TrendingUp,
   Settings,
+  Settings as SettingsIcon,
   Container,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -31,6 +34,19 @@ const statusColors: Record<
 };
 
 export default function AIComputePage() {
+  // Check deployment methods configuration
+  const [deploymentMethods, setDeploymentMethods] = useState<any>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("deployment_methods_config");
+    if (saved) {
+      setDeploymentMethods(JSON.parse(saved));
+    }
+  }, []);
+
+  const hasEnabledMethods = deploymentMethods &&
+    Object.values(deploymentMethods).some((m: any) => m.enabled);
+
   // Fetch instances
   const {
     data: instancesData,
@@ -40,6 +56,7 @@ export default function AIComputePage() {
     queryKey: ["ai-instances"],
     queryFn: () => aiComputeAPI.listInstances(),
     refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: hasEnabledMethods, // Only fetch if methods are enabled
   });
 
   const stats = [
@@ -224,7 +241,54 @@ export default function AIComputePage() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* Empty State - No methods configured */}
+          {!hasEnabledMethods && (
+            <div className="text-center py-12">
+              <div className="p-4 rounded-full bg-blue-500/10 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <SettingsIcon className="h-10 w-10 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">
+                Configure Your Deployment Methods
+              </h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Before you can deploy LLMs, configure at least one deployment method.
+                Choose between cloud (AWS), self-hosted (Docker), or both!
+              </p>
+              <Link href="/ai-compute/deployment-methods">
+                <Button size="lg">
+                  <SettingsIcon className="mr-2 h-5 w-5" />
+                  Configure Deployment Methods
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+
+              {/* Preview of available methods */}
+              <div className="mt-8 grid gap-4 md:grid-cols-2 max-w-2xl mx-auto">
+                <div className="p-4 rounded-lg border text-left">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Server className="h-5 w-5 text-blue-600" />
+                    <p className="font-medium">AWS Spot Instances</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Cloud GPU instances • Pay per hour
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border text-left">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Container className="h-5 w-5 text-indigo-600" />
+                    <p className="font-medium">Docker/Portainer</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Your hardware • Free after setup
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Configured methods */}
+          {hasEnabledMethods && (
+            <div className="grid gap-4 md:grid-cols-2">
             {/* AWS Spot Instances */}
             <div className="p-6 rounded-lg border-2 border-border hover:border-primary transition-colors">
               <div className="flex items-center gap-3 mb-4">

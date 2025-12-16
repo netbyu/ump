@@ -23,7 +23,7 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'dashboard': null, // Always visible
   'itsm-requests': { resource: 'itsm', action: 'read' },
   'monitoring': { resource: 'monitoring', action: 'read' },
-  'systems': { resource: 'devices', action: 'read' },
+  'nodes': { resource: 'integrations', action: 'read' },
   'phone-systems': { resource: 'extensions', action: 'read' },
   'call-report': { resource: 'reports', action: 'read' },
   'automation-dashboard': { resource: 'automation', action: 'read' },
@@ -36,7 +36,7 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'self-service': null, // Always visible to authenticated users
   'providers': { resource: 'integrations', action: 'read' },
   'connectors': { resource: 'integrations', action: 'read' },
-  'devices': { resource: 'devices', action: 'read' },
+  'stacks': { resource: 'integrations', action: 'read' },
   'admin': { resource: 'users', action: 'read' },
   'settings': { resource: 'settings', action: 'read' },
 };
@@ -46,7 +46,7 @@ const routeMap: Record<PageView, string> = {
   'dashboard': '/dashboard',
   'itsm-requests': '/itsm',
   'monitoring': '/monitoring',
-  'systems': '/systems',
+  'nodes': '/devices',
   'phone-systems': '/phone-systems',
   'call-report': '/call-report',
   'automation-dashboard': '/automation',
@@ -59,7 +59,7 @@ const routeMap: Record<PageView, string> = {
   'self-service': '/self-service',
   'providers': '/providers',
   'connectors': '/connectors',
-  'devices': '/devices',
+  'stacks': '/infrastructure/stacks',
   'admin': '/admin',
   'settings': '/settings',
 };
@@ -141,10 +141,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       label: 'Integrations',
       isSection: true,
       children: [
-        { id: 'devices' as PageView, icon: HardDrive, label: 'Devices' },
-        { id: 'systems' as PageView, icon: Layers, label: 'Systems' },
+        { id: 'nodes' as PageView, icon: Server, label: 'Nodes' },
         { id: 'providers' as PageView, icon: Store, label: 'Providers' },
         { id: 'connectors' as PageView, icon: Cable, label: 'Connectors' },
+        { id: 'stacks' as PageView, icon: Layers, label: 'Stacks' },
       ]
     },
     { id: 'admin' as PageView, icon: Shield, label: 'Admin' },

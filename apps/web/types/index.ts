@@ -3,7 +3,6 @@ export type PageView =
   | "dashboard"
   | "itsm-requests"
   | "monitoring"
-  | "systems"
   | "phone-systems"
   | "call-report"
   | "automation-dashboard"
@@ -14,9 +13,10 @@ export type PageView =
   | "fax-management"
   | "ivr"
   | "self-service"
+  | "nodes"
   | "providers"
   | "connectors"
-  | "devices"
+  | "stacks"
   | "admin"
   | "settings";
 
@@ -612,3 +612,119 @@ export interface TestConnectionResponse {
   message: string;
   details: Record<string, unknown>;
 }
+
+// =============================================================================
+// Platforms Types (Management platforms, monitoring systems)
+// =============================================================================
+
+export type PlatformCategory = "monitoring" | "telecom" | "infrastructure" | "management" | "other";
+
+/**
+ * PlatformType - Lookup for types of platforms (monitoring, management, provisioning)
+ */
+export interface PlatformTypeInfo {
+  id: number;
+  name: string;
+  display_name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  category?: PlatformCategory;
+  is_active: boolean;
+  display_order: number;
+}
+
+/**
+ * Platform - Services/systems that we query for device-related information.
+ *
+ * Unlike Devices (physical/virtual endpoints), Platforms are management systems,
+ * monitoring systems, or service endpoints that aggregate or control multiple devices.
+ * Examples: Zabbix, Avaya SMGR, Cisco UCM, Portainer, etc.
+ */
+export interface Platform {
+  id: number;
+  uuid: string;
+  name: string;
+  platform_type: string;
+  platform_type_id?: number;
+  platform_type_name?: string;
+  platform_type_info?: PlatformTypeInfo;
+
+  // Connection information
+  primary_address: string;
+  port?: number;
+  base_path?: string;
+
+  // Provider link (from connectors service catalog)
+  provider_id?: string;
+
+  description?: string;
+
+  // Vendor info
+  vendor?: string;
+  version?: string;
+
+  // Status
+  is_active: boolean;
+  is_verified: boolean;
+  last_verified_at?: string;
+  last_sync_at?: string;
+  last_error?: string;
+
+  // Configuration
+  config?: Record<string, unknown>;
+
+  // Credential settings
+  credential_source: CredentialSource;
+  credential_group_id?: number;
+  credential_group_name?: string;
+
+  // SSL/Connection settings
+  verify_ssl: boolean;
+  timeout: number;
+
+  // Metadata
+  extra_data?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  updated_by?: string;
+}
+
+export interface PlatformCreate {
+  name: string;
+  platform_type?: string;
+  platform_type_id?: number;
+  primary_address: string;
+  port?: number;
+  base_path?: string;
+  provider_id?: string;
+  description?: string;
+  vendor?: string;
+  version?: string;
+  config?: Record<string, unknown>;
+  credential_source?: CredentialSource;
+  credential_group_id?: number;
+  credentials?: Record<string, string>;
+  verify_ssl?: boolean;
+  timeout?: number;
+  is_active?: boolean;
+}
+
+export interface PlatformUpdate extends Partial<PlatformCreate> {}
+
+export interface PlatformFilters {
+  platform_type?: string;
+  platform_type_id?: number;
+  is_active?: boolean;
+  is_verified?: boolean;
+  search?: string;
+}
+
+// Legacy aliases for backwards compatibility
+export type SystemCategory = PlatformCategory;
+export type SystemTypeInfo = PlatformTypeInfo;
+export type System = Platform;
+export type SystemCreate = PlatformCreate;
+export type SystemUpdate = PlatformUpdate;
+export type SystemFilters = PlatformFilters;

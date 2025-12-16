@@ -1106,7 +1106,7 @@ export default function DevicesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Device Management</h1>
+          <h1 className="text-3xl font-bold text-white">Nodes</h1>
           <p className="text-gray-400">
             Manage servers, PBX systems, gateways, and network devices
           </p>
@@ -1126,7 +1126,7 @@ export default function DevicesPage() {
             className="bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Device
+            Add Node
           </Button>
         </div>
       </div>
@@ -1137,7 +1137,7 @@ export default function DevicesPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Total Devices</p>
+                <p className="text-sm text-gray-400">Total Nodes</p>
                 <p className="text-2xl font-bold text-white">{stats.total}</p>
               </div>
               <HardDrive className="w-8 h-8 text-blue-400" />
@@ -1184,7 +1184,7 @@ export default function DevicesPage() {
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="Search devices..."
+            placeholder="Search nodes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-gray-800 border-gray-700 text-white"
@@ -1368,7 +1368,7 @@ export default function DevicesPage() {
               {filteredDevices.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-gray-400">
-                    No devices found
+                    No nodes found
                   </TableCell>
                 </TableRow>
               )}
@@ -1467,8 +1467,8 @@ export default function DevicesPage() {
           {filteredDevices.length === 0 && (
             <div className="col-span-full text-center py-12">
               <HardDrive className="w-12 h-12 mx-auto text-gray-600 mb-4" />
-              <h3 className="text-lg font-medium text-gray-400">No devices found</h3>
-              <p className="text-gray-500">Try adjusting your filters or add a new device</p>
+              <h3 className="text-lg font-medium text-gray-400">No nodes found</h3>
+              <p className="text-gray-500">Try adjusting your filters or add a new node</p>
             </div>
           )}
         </div>

@@ -6,7 +6,7 @@ FastAPI service for managing AWS Spot GPU instances for LLM testing.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import instances_router, pricing_router, credentials_router, quotas_router, models_router, connections_router, docker_router
+from .routes import instances_router, pricing_router, credentials_router, quotas_router, models_router, connections_router, docker_router, stacks_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -34,6 +34,7 @@ app.include_router(quotas_router, prefix="/api")
 app.include_router(models_router, prefix="/api")
 app.include_router(connections_router, prefix="/api")
 app.include_router(docker_router, prefix="/api")
+app.include_router(stacks_router, prefix="/api")
 
 
 @app.get("/")

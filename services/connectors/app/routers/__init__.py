@@ -12,10 +12,12 @@ from .providers import router as providers_router
 from .connectors import router as connectors_router
 from .credentials import router as credentials_router
 from .execution import router as execution_router
+from .nodes import router as nodes_router
 
 __all__ = [
     "providers_router",
     "connectors_router",
     "credentials_router",
     "execution_router",
+    "nodes_router",
 ]

@@ -4,7 +4,8 @@ import { useInfrastructureDevices } from "@/hooks/use-infrastructure";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Server, Plus, Loader2 } from "lucide-react";
+import { Server, Plus, Loader2, Layers } from "lucide-react";
+import Link from "next/link";
 import type { SystemStatus } from "@/types";
 
 const statusColors: Record<SystemStatus, "success" | "destructive" | "warning" | "secondary"> = {
@@ -28,10 +29,18 @@ export default function InfrastructurePage() {
             Monitor servers, switches, and network devices
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Device
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/infrastructure/stacks">
+            <Button variant="outline">
+              <Layers className="mr-2 h-4 w-4" />
+              Automation Stacks
+            </Button>
+          </Link>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Device
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (

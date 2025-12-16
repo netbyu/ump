@@ -14,7 +14,6 @@ import {
   Phone,
   Workflow,
   Bot,
-  Settings,
   Lock,
   Check,
   X,

@@ -127,12 +127,12 @@ const DEFAULT_FEATURES: Record<string, FeatureConfig> = {
     enabled: true,
     category: "core",
   },
-  devices: {
-    id: "devices",
-    name: "Devices",
-    description: "Device inventory management",
+  nodes: {
+    id: "nodes",
+    name: "Nodes",
+    description: "Infrastructure systems hosting multiple integrations (servers, devices, platforms)",
     enabled: true,
-    category: "admin",
+    category: "core",
   },
   admin: {
     id: "admin",
