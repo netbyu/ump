@@ -66,7 +66,9 @@ import {
   Clock,
   Key,
   Link2,
+  Terminal,
 } from "lucide-react";
+import Link from "next/link";
 import {
   useDevices,
   useDeviceTypes,
@@ -1112,6 +1114,16 @@ export default function DevicesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/devices/explorer">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-700 text-gray-300"
+            >
+              <Terminal className="w-4 h-4 mr-2" />
+              Explorer
+            </Button>
+          </Link>
           <Button
             variant="outline"
             size="sm"
@@ -1489,19 +1501,19 @@ export default function DevicesPage() {
         <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {isEditDialogOpen ? "Edit Device" : "Add New Device"}
+              {isEditDialogOpen ? "Edit Node" : "Add New Node"}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
               {isEditDialogOpen
-                ? "Update the device information below."
-                : "Enter the device details to add it to the system."}
+                ? "Update the node information below."
+                : "Enter the node details to add it to the system."}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Device Name *</Label>
+                <Label className="text-gray-300">Node Name *</Label>
                 <Input
                   value={formData.device_name}
                   onChange={(e) =>
@@ -1512,7 +1524,7 @@ export default function DevicesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Device Type *</Label>
+                <Label className="text-gray-300">Node Type *</Label>
                 <Select
                   value={formData.device_type}
                   onValueChange={(value) =>
@@ -1711,7 +1723,7 @@ export default function DevicesPage() {
               {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              {isEditDialogOpen ? "Save Changes" : "Add Device"}
+              {isEditDialogOpen ? "Save Changes" : "Add Node"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1721,7 +1733,7 @@ export default function DevicesPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-gray-800 border-gray-700 text-white">
           <DialogHeader>
-            <DialogTitle>Delete Device</DialogTitle>
+            <DialogTitle>Delete Node</DialogTitle>
             <DialogDescription className="text-gray-400">
               Are you sure you want to delete "{selectedDevice?.device_name}"? This action
               cannot be undone.

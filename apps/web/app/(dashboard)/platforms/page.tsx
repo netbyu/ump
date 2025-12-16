@@ -196,7 +196,7 @@ export default function PlatformsPage() {
                 credentialGroups={credentialGroups || []}
                 onSubmit={async (data) => {
                   try {
-                    await createPlatform.mutateAsync(data);
+                    await createPlatform.mutateAsync(data as PlatformCreate);
                     toast({ title: "Platform created successfully" });
                     setIsAddDialogOpen(false);
                   } catch (error) {

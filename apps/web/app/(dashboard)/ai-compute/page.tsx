@@ -361,6 +361,7 @@ export default function AIComputePage() {
               </div>
             </div>
           </div>
+          )}
         </CardContent>
       </Card>
 
