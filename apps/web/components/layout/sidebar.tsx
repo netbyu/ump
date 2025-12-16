@@ -34,7 +34,6 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'fax-management': { resource: 'fax', action: 'read' },
   'ivr': { resource: 'ivr', action: 'read' },
   'phone-provisioning': { resource: 'telephony', action: 'read' },
-  'self-service': null, // Always visible to authenticated users
   'providers': { resource: 'integrations', action: 'read' },
   'connectors': { resource: 'integrations', action: 'read' },
   'stacks': { resource: 'integrations', action: 'read' },
@@ -58,7 +57,6 @@ const routeMap: Record<PageView, string> = {
   'fax-management': '/fax',
   'ivr': '/ivr',
   'phone-provisioning': '/phone-provisioning',
-  'self-service': '/self-service',
   'providers': '/providers',
   'connectors': '/connectors',
   'stacks': '/infrastructure/stacks',
@@ -131,6 +129,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       isSection: true,
       children: [
         { id: 'phone-systems' as PageView, icon: Server, label: 'Phone Systems' },
+        { id: 'phone-provisioning' as PageView, icon: Phone, label: 'Phone Provisioning' },
         { id: 'call-report' as PageView, icon: BarChart3, label: 'Call Report' },
         { id: 'fax-management' as PageView, icon: FileImage, label: 'Fax Management' },
         { id: 'ivr' as PageView, icon: Paintbrush, label: 'IVR Management' },
