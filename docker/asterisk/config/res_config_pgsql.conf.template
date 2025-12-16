@@ -1,0 +1,11 @@
+;
+; PostgreSQL Realtime Configuration
+; Environment variables are substituted at container startup
+;
+
+[asterisk]
+dbhost = ${DB_HOST}
+dbport = ${DB_PORT}
+dbname = ${DB_NAME}
+dbuser = ${DB_USER}
+dbpass = ${DB_PASSWORD}

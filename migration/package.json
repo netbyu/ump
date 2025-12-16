@@ -1,0 +1,14 @@
+{
+  "name": "asterisk-mgmt-migration",
+  "version": "1.0.0",
+  "description": "Migration tools for Legacy IDS to new Asterisk Management UI",
+  "scripts": {
+    "migrate": "node migrate-from-legacy.js",
+    "migrate:dry-run": "node migrate-from-legacy.js --dry-run"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "mysql2": "^3.6.5",
+    "pg": "^8.11.3"
+  }
+}

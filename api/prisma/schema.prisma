@@ -1,0 +1,249 @@
+// Prisma Schema for Asterisk Management UI
+// Maps to the PostgreSQL schema used by both Asterisk Realtime and our app
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Asterisk Realtime Tables (read/write by Asterisk)
+// =============================================================================
+
+model PsEndpoint {
+  id                            String   @id @db.VarChar(40)
+  transport                     String?  @default("transport-udp") @db.VarChar(40)
+  aors                          String?  @db.VarChar(200)
+  auth                          String?  @db.VarChar(40)
+  context                       String?  @default("from-internal") @db.VarChar(40)
+  disallow                      String?  @default("all") @db.VarChar(200)
+  allow                         String?  @default("ulaw,alaw,g722") @db.VarChar(200)
+  directMedia                   String?  @default("no") @map("direct_media") @db.VarChar(3)
+  dtmfMode                      String?  @default("rfc4733") @map("dtmf_mode") @db.VarChar(40)
+  forceRport                    String?  @default("yes") @map("force_rport") @db.VarChar(3)
+  rewriteContact                String?  @default("yes") @map("rewrite_contact") @db.VarChar(3)
+  rtpSymmetric                  String?  @default("yes") @map("rtp_symmetric") @db.VarChar(3)
+  mailboxes                     String?  @db.VarChar(40)
+  callerid                      String?  @db.VarChar(100)
+  mohSuggest                    String?  @default("default") @map("moh_suggest") @db.VarChar(40)
+  deviceStateBusyAt             Int?     @default(1) @map("device_state_busy_at")
+  createdAt                     DateTime @default(now()) @map("created_at")
+  updatedAt                     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  extension Extension?
+  auth_ref  PsAuth?    @relation("EndpointAuth")
+  aor_ref   PsAor?     @relation("EndpointAor")
+
+  @@map("ps_endpoints")
+}
+
+model PsAuth {
+  id        String   @id @db.VarChar(40)
+  authType  String?  @default("userpass") @map("auth_type") @db.VarChar(40)
+  password  String?  @db.VarChar(80)
+  username  String?  @db.VarChar(40)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relation to endpoint
+  endpoint PsEndpoint? @relation("EndpointAuth", fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("ps_auths")
+}
+
+model PsAor {
+  id               String   @id @db.VarChar(40)
+  maxContacts      Int?     @default(1) @map("max_contacts")
+  removeExisting   String?  @default("yes") @map("remove_existing") @db.VarChar(3)
+  qualifyFrequency Int?     @default(60) @map("qualify_frequency")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relation to endpoint
+  endpoint PsEndpoint? @relation("EndpointAor", fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("ps_aors")
+}
+
+model Voicemail {
+  id              Int      @id @default(autoincrement())
+  context         String?  @default("default") @db.VarChar(50)
+  mailbox         String   @db.VarChar(40)
+  password        String?  @default("1234") @db.VarChar(10)
+  fullname        String?  @db.VarChar(150)
+  email           String?  @db.VarChar(100)
+  attach          String?  @default("yes") @db.VarChar(3)
+  deletevoicemail String?  @default("no") @db.VarChar(3)
+  maxmsg          Int?     @default(100)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@unique([context, mailbox])
+  @@map("voicemail")
+}
+
+model Queue {
+  name                    String   @id @db.VarChar(128)
+  musiconhold             String?  @default("default") @db.VarChar(128)
+  announce                String?  @db.VarChar(128)
+  context                 String?  @db.VarChar(128)
+  timeout                 Int?     @default(15)
+  ringinuse               String?  @default("no") @db.VarChar(3)
+  strategy                String?  @default("ringall") @db.VarChar(128)
+  servicelevel            Int?     @default(60)
+  maxlen                  Int?     @default(0)
+  wrapuptime              Int?     @default(0)
+  announceFrequency       Int?     @default(0) @map("announce_frequency")
+  announceHoldtime        String?  @map("announce_holdtime") @db.VarChar(128)
+  announcePosition        String?  @default("yes") @map("announce_position") @db.VarChar(128)
+  description             String?  @db.VarChar(255)
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  members QueueMember[]
+
+  @@map("queues")
+}
+
+model QueueMember {
+  uniqueid       Int      @id @default(autoincrement())
+  membername     String?  @db.VarChar(40)
+  queueName      String   @map("queue_name") @db.VarChar(128)
+  interface      String   @db.VarChar(128)
+  penalty        Int?     @default(0)
+  paused         Int?     @default(0)
+  stateInterface String?  @map("state_interface") @db.VarChar(128)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  queue Queue @relation(fields: [queueName], references: [name], onDelete: Cascade)
+
+  @@unique([queueName, interface])
+  @@map("queue_members")
+}
+
+// =============================================================================
+// Application Tables
+// =============================================================================
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique @db.VarChar(50)
+  email        String?   @unique @db.VarChar(100)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         String    @default("user") @db.VarChar(20)
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLogin    DateTime? @map("last_login")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Extension {
+  id          String   @id @db.VarChar(40)
+  displayName String?  @map("display_name") @db.VarChar(100)
+  email       String?  @db.VarChar(100)
+  department  String?  @db.VarChar(50)
+  location    String?  @db.VarChar(50)
+  macAddress  String?  @map("mac_address") @db.VarChar(17)
+  phoneModel  String?  @map("phone_model") @db.VarChar(50)
+  emergencyCid String? @map("emergency_cid") @db.VarChar(20)
+  isActive    Boolean  @default(true) @map("is_active")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relation to PJSIP endpoint
+  endpoint PsEndpoint @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("extensions")
+}
+
+model Cdr {
+  id          Int       @id @default(autoincrement())
+  calldate    DateTime
+  clid        String?   @db.VarChar(80)
+  src         String?   @db.VarChar(80)
+  dst         String?   @db.VarChar(80)
+  dcontext    String?   @db.VarChar(80)
+  channel     String?   @db.VarChar(80)
+  dstchannel  String?   @db.VarChar(80)
+  lastapp     String?   @db.VarChar(80)
+  lastdata    String?   @db.VarChar(80)
+  duration    Int?      @default(0)
+  billsec     Int?      @default(0)
+  disposition String?   @db.VarChar(45)
+  amaflags    Int?      @default(0)
+  accountcode String?   @db.VarChar(20)
+  uniqueid    String?   @db.VarChar(150)
+  userfield   String?   @db.VarChar(255)
+  linkedid    String?   @db.VarChar(150)
+  peeraccount String?   @db.VarChar(20)
+  sequence    Int?
+
+  @@index([calldate])
+  @@index([src])
+  @@index([dst])
+  @@index([disposition])
+  @@map("cdr")
+}
+
+model QueueLog {
+  id        Int      @id @default(autoincrement())
+  time      DateTime @default(now())
+  callid    String?  @db.VarChar(80)
+  queuename String?  @db.VarChar(80)
+  agent     String?  @db.VarChar(80)
+  event     String?  @db.VarChar(32)
+  data1     String?  @db.VarChar(100)
+  data2     String?  @db.VarChar(100)
+  data3     String?  @db.VarChar(100)
+  data4     String?  @db.VarChar(100)
+  data5     String?  @db.VarChar(100)
+
+  @@index([time])
+  @@index([queuename])
+  @@index([agent])
+  @@index([event])
+  @@map("queue_log")
+}
+
+model Setting {
+  key         String   @id @db.VarChar(100)
+  value       String?
+  description String?  @db.VarChar(255)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?     @map("user_id")
+  action     String   @db.VarChar(50)
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.VarChar(100)
+  oldValues  Json?    @map("old_values")
+  newValues  Json?    @map("new_values")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}

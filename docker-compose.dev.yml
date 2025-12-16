@@ -1,0 +1,109 @@
+version: '3.8'
+
+# Development configuration - mounts source code for hot reload
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: asterisk-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: asterisk
+      POSTGRES_PASSWORD: asterisk_dev
+      POSTGRES_DB: asterisk_mgmt
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asterisk -d asterisk_mgmt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - asterisk-dev
+
+  # Asterisk PBX (same as production)
+  asterisk:
+    build:
+      context: ./docker/asterisk
+      dockerfile: Dockerfile
+    container_name: asterisk-pbx-dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: asterisk_mgmt
+      DB_USER: asterisk
+      DB_PASSWORD: asterisk_dev
+      ARI_USERNAME: asterisk-mgmt
+      ARI_PASSWORD: ari_dev_secret
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+      - "8088:8088"
+      - "10000-10100:10000-10100/udp"
+    networks:
+      - asterisk-dev
+    cap_add:
+      - NET_ADMIN
+
+  # Node.js API - Development with hot reload
+  api:
+    image: node:20-alpine
+    container_name: asterisk-api-dev
+    working_dir: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://asterisk:asterisk_dev@postgres:5432/asterisk_mgmt
+      JWT_SECRET: dev-secret-not-for-production
+      JWT_EXPIRES_IN: 24h
+      ARI_URL: http://asterisk:8088
+      ARI_USERNAME: asterisk-mgmt
+      ARI_PASSWORD: ari_dev_secret
+      ARI_APP_NAME: asterisk-mgmt
+      CORS_ORIGIN: http://localhost:3000
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    command: sh -c "npm install && npx prisma generate && npm run dev"
+    networks:
+      - asterisk-dev
+
+  # React UI - Development with hot reload
+  ui:
+    image: node:20-alpine
+    container_name: asterisk-ui-dev
+    working_dir: /app
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+      VITE_SOCKET_URL: http://localhost:3001
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - asterisk-dev
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  asterisk-dev:
+    driver: bridge
