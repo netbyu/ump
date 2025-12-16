@@ -33,6 +33,7 @@ const pagePermissions: Record<string, { resource: string; action: string } | nul
   'ai-compute': { resource: 'ai', action: 'read' },
   'fax-management': { resource: 'fax', action: 'read' },
   'ivr': { resource: 'ivr', action: 'read' },
+  'phone-provisioning': { resource: 'telephony', action: 'read' },
   'self-service': null, // Always visible to authenticated users
   'providers': { resource: 'integrations', action: 'read' },
   'connectors': { resource: 'integrations', action: 'read' },
@@ -56,6 +57,7 @@ const routeMap: Record<PageView, string> = {
   'ai-compute': '/ai-compute',
   'fax-management': '/fax',
   'ivr': '/ivr',
+  'phone-provisioning': '/phone-provisioning',
   'self-service': '/self-service',
   'providers': '/providers',
   'connectors': '/connectors',
