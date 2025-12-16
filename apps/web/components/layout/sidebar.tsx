@@ -4,9 +4,9 @@ import { useState, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
-  LayoutDashboard, FileText, Paintbrush, Zap, UserCircle,
+  LayoutDashboard, FileText, Paintbrush, Zap,
   Plug, Settings, ChevronLeft, Shield, Server, BarChart3,
-  Bot, FileImage, Activity, ChevronDown, Workflow, Network, HardDrive, Phone, Layers, Cpu,
+  Bot, FileImage, Activity, ChevronDown, Workflow, Network, Phone, Layers, Cpu,
   Store, Cable
 } from 'lucide-react';
 import { PageView } from '@/types';
@@ -135,7 +135,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         { id: 'ivr' as PageView, icon: Paintbrush, label: 'IVR Management' },
       ]
     },
-    { id: 'self-service' as PageView, icon: UserCircle, label: 'User Self-Service Portal' },
     {
       id: 'integrations-section',
       icon: Plug,

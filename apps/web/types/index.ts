@@ -12,7 +12,7 @@ export type PageView =
   | "ai-compute"
   | "fax-management"
   | "ivr"
-  | "self-service"
+  | "phone-provisioning"
   | "nodes"
   | "providers"
   | "connectors"

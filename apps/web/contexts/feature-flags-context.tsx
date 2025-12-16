@@ -187,13 +187,6 @@ const DEFAULT_FEATURES: Record<string, FeatureConfig> = {
     requiresIntegration: true,
     requiredProviders: ["freepbx", "asterisk", "avaya", "cisco_cucm"],
   },
-  "self-service": {
-    id: "self-service",
-    name: "User Self-Service Portal",
-    description: "End-user self-service features",
-    enabled: true,
-    category: "core",
-  },
   providers: {
     id: "providers",
     name: "Providers",

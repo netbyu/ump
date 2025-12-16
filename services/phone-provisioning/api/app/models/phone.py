@@ -17,6 +17,7 @@ class PhoneVendor(str, Enum):
     SNOM = "snom"
     PANASONIC = "panasonic"
     AASTRA = "aastra"
+    MITEL = "mitel"
     OTHER = "other"
 
 
