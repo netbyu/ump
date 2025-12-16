@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Shield,
   Users,
@@ -17,6 +19,12 @@ import {
   Lock,
   Check,
   X,
+  Cable,
+  Plug,
+  Info,
+  Zap,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +49,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useFeatureFlags, FeatureConfig } from "@/contexts/feature-flags-context";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useFeatureFlags, FeatureConfig, IntegrationFeatureMapping } from "@/contexts/feature-flags-context";
+import { useDeviceIntegrations, useDevices } from "@/hooks/use-devices";
 
 // Category display info
 const categoryInfo: Record<
@@ -70,7 +85,49 @@ export default function AdminPage() {
     getFeaturesByCategory,
     enabledCount,
     totalCount,
+    // Integration-based features
+    integrationMappings,
+    setIntegrationMappings,
+    activeProviderIds,
+    setActiveProviderIds,
+    addActiveProvider,
+    removeActiveProvider,
+    integrationModeEnabled,
+    setIntegrationModeEnabled,
+    getIntegrationEnabledFeatures,
   } = useFeatureFlags();
+
+  // Fetch devices and their integrations to detect active providers
+  const { data: devices } = useDevices();
+
+  // Extract unique provider IDs from device integrations
+  useEffect(() => {
+    if (!devices) return;
+
+    const providerIds = new Set<string>();
+
+    // In a real implementation, we'd fetch integrations for all devices
+    // For now, we'll use the provider IDs that would be detected
+    // This would be replaced with actual integration data from the API
+    devices.forEach((device) => {
+      // Mock: add providers based on device types
+      if (device.device_type === "server") {
+        providerIds.add("zabbix");
+        providerIds.add("prometheus");
+      }
+      if (device.device_type === "pbx" || device.device_type === "gateway") {
+        providerIds.add("freepbx");
+        providerIds.add("asterisk");
+      }
+    });
+
+    // Update active providers if we have any
+    if (providerIds.size > 0) {
+      setActiveProviderIds(Array.from(providerIds));
+    }
+  }, [devices, setActiveProviderIds]);
+
+  const integrationEnabledFeatures = getIntegrationEnabledFeatures();
 
   // Group features by category
   const featuresByCategory = {
@@ -110,6 +167,9 @@ export default function AdminPage() {
           </TabsTrigger>
           <TabsTrigger value="features" className="data-[state=active]:bg-gray-700">
             Feature Management
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="data-[state=active]:bg-gray-700">
+            Integration Mode
           </TabsTrigger>
           <TabsTrigger value="users" className="data-[state=active]:bg-gray-700">
             Users
@@ -404,6 +464,301 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Integration Mode Tab */}
+        <TabsContent value="integrations" className="space-y-6">
+          {/* Integration Mode Toggle */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Cable className="w-5 h-5" />
+                    Dynamic Sidebar Mode
+                  </CardTitle>
+                  <CardDescription className="text-gray-400 mt-1">
+                    When enabled, sidebar menu items will automatically show/hide based on your
+                    configured integrations. For example, "Monitoring" menu only appears if you
+                    have Zabbix or Prometheus integrated.
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-400">
+                    {integrationModeEnabled ? "Enabled" : "Disabled"}
+                  </span>
+                  <Switch
+                    checked={integrationModeEnabled}
+                    onCheckedChange={setIntegrationModeEnabled}
+                    className="data-[state=checked]:bg-green-600"
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            {integrationModeEnabled && (
+              <CardContent className="border-t border-gray-700 pt-4">
+                <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="text-blue-300 font-medium">How it works:</p>
+                      <ul className="text-blue-200/80 mt-2 space-y-1 list-disc list-inside">
+                        <li>Features with <Badge className="bg-purple-600/30 text-purple-300 mx-1 text-xs">Requires Integration</Badge> will only show when a matching provider is configured</li>
+                        <li>Add a Zabbix integration to your nodes → Monitoring menu appears</li>
+                        <li>Add a FreePBX integration → Phone Systems, Call Reports, IVR menus appear</li>
+                        <li>Core features (Dashboard, Admin, Settings) are always visible</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Active Integrations Detected */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Plug className="w-5 h-5" />
+                Detected Integrations
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Provider integrations found in your configured nodes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {activeProviderIds.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Cable className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No integrations detected</p>
+                  <p className="text-sm mt-1">Configure integrations on your nodes to enable features</p>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {activeProviderIds.map((providerId) => (
+                    <Badge
+                      key={providerId}
+                      className="bg-green-600/20 text-green-400 text-sm px-3 py-1"
+                    >
+                      <Check className="w-3 h-3 mr-1" />
+                      {providerId}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Manually add provider for testing */}
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <Label className="text-gray-400 text-sm">Manually add provider (for testing):</Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    id="manual-provider"
+                    placeholder="e.g., zabbix, freepbx, temporal"
+                    className="bg-gray-700 border-gray-600 text-white flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const input = e.target as HTMLInputElement;
+                        if (input.value.trim()) {
+                          addActiveProvider(input.value.trim().toLowerCase());
+                          input.value = "";
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600"
+                    onClick={() => {
+                      const input = document.getElementById("manual-provider") as HTMLInputElement;
+                      if (input?.value.trim()) {
+                        addActiveProvider(input.value.trim().toLowerCase());
+                        input.value = "";
+                      }
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Integration-Feature Mappings */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Integration → Feature Mappings
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Configure which integrations enable which sidebar features
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-gray-700 hover:bg-transparent">
+                    <TableHead className="text-gray-400">Integration Type</TableHead>
+                    <TableHead className="text-gray-400">Matching Providers</TableHead>
+                    <TableHead className="text-gray-400">Enables Features</TableHead>
+                    <TableHead className="text-gray-400 w-[100px] text-center">Active</TableHead>
+                    <TableHead className="text-gray-400 w-[80px] text-center">Enable</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {integrationMappings.map((mapping) => {
+                    // Check if this mapping has any active providers
+                    const hasActiveProvider = activeProviderIds.some(
+                      (pid) =>
+                        mapping.providerIds.includes(pid) ||
+                        mapping.providerCategories.some((cat) => pid.includes(cat))
+                    );
+
+                    return (
+                      <TableRow key={mapping.id} className="border-gray-700">
+                        <TableCell className="text-white font-medium">
+                          <div>
+                            {mapping.name}
+                            <p className="text-xs text-gray-500 mt-0.5">{mapping.description}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {mapping.providerIds.slice(0, 4).map((pid) => (
+                              <Badge
+                                key={pid}
+                                variant="outline"
+                                className={`text-xs ${
+                                  activeProviderIds.includes(pid)
+                                    ? "border-green-600 text-green-400"
+                                    : "border-gray-600 text-gray-500"
+                                }`}
+                              >
+                                {pid}
+                              </Badge>
+                            ))}
+                            {mapping.providerIds.length > 4 && (
+                              <Badge variant="outline" className="text-xs border-gray-600 text-gray-500">
+                                +{mapping.providerIds.length - 4} more
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {mapping.enablesFeatures.map((featureId) => {
+                              const feature = features[featureId];
+                              return (
+                                <Badge
+                                  key={featureId}
+                                  className={`text-xs ${
+                                    hasActiveProvider && mapping.enabled
+                                      ? "bg-green-600 text-white"
+                                      : "bg-gray-700 text-gray-400"
+                                  }`}
+                                >
+                                  {feature?.name || featureId}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {hasActiveProvider ? (
+                            <Badge className="bg-green-600 text-white">
+                              <Check className="w-3 h-3 mr-1" />
+                              Yes
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-gray-700 text-gray-400">
+                              No
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Switch
+                            checked={mapping.enabled}
+                            onCheckedChange={(checked) => {
+                              const updated = integrationMappings.map((m) =>
+                                m.id === mapping.id ? { ...m, enabled: checked } : m
+                              );
+                              setIntegrationMappings(updated);
+                            }}
+                            className="data-[state=checked]:bg-green-600"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* Features Status */}
+          {integrationModeEnabled && (
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Features Status (Integration Mode)</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Current visibility of features based on your integrations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {Object.values(features).map((feature) => {
+                    const isEnabled = isFeatureEnabled(feature.id);
+                    const requiresIntegration = feature.requiresIntegration;
+                    const isLocked = LOCKED_FEATURES.includes(feature.id);
+
+                    return (
+                      <div
+                        key={feature.id}
+                        className={`p-3 rounded-lg border ${
+                          isEnabled
+                            ? "bg-green-900/20 border-green-800"
+                            : "bg-gray-900 border-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className={isEnabled ? "text-green-300" : "text-gray-500"}>
+                            {feature.name}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {requiresIntegration && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Badge className="bg-purple-600/30 text-purple-300 text-xs">
+                                      <Plug className="w-3 h-3" />
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Requires integration</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                            {isLocked && (
+                              <Badge className="bg-blue-600/30 text-blue-300 text-xs">
+                                <Lock className="w-3 h-3" />
+                              </Badge>
+                            )}
+                            {isEnabled ? (
+                              <Check className="w-4 h-4 text-green-400" />
+                            ) : (
+                              <X className="w-4 h-4 text-gray-600" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Users Tab */}
