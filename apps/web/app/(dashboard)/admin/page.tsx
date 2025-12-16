@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,7 +56,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useFeatureFlags, FeatureConfig, IntegrationFeatureMapping } from "@/contexts/feature-flags-context";
-import { useDeviceIntegrations, useDevices } from "@/hooks/use-devices";
 
 // Category display info
 const categoryInfo: Record<
@@ -97,36 +96,8 @@ export default function AdminPage() {
     getIntegrationEnabledFeatures,
   } = useFeatureFlags();
 
-  // Fetch devices and their integrations to detect active providers
-  const { data: devices } = useDevices();
-
-  // Extract unique provider IDs from device integrations
-  useEffect(() => {
-    if (!devices) return;
-
-    const providerIds = new Set<string>();
-
-    // In a real implementation, we'd fetch integrations for all devices
-    // For now, we'll use the provider IDs that would be detected
-    // This would be replaced with actual integration data from the API
-    devices.forEach((device) => {
-      // Mock: add providers based on device types
-      if (device.device_type === "server") {
-        providerIds.add("zabbix");
-        providerIds.add("prometheus");
-      }
-      if (device.device_type === "pbx" || device.device_type === "gateway") {
-        providerIds.add("freepbx");
-        providerIds.add("asterisk");
-      }
-    });
-
-    // Update active providers if we have any
-    if (providerIds.size > 0) {
-      setActiveProviderIds(Array.from(providerIds));
-    }
-  }, [devices, setActiveProviderIds]);
-
+  // Active providers are managed via the Integration Mode UI (manual add/remove)
+  // In the future, this could be populated automatically by scanning device integrations
   const integrationEnabledFeatures = getIntegrationEnabledFeatures();
 
   // Group features by category

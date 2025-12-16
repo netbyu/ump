@@ -1,20 +1,14 @@
 """
 Platform Integrations API Routes
 For software/SaaS platform integrations (Salesforce, Slack, Teams, etc.)
+
+Note: This router is a placeholder. Platform integrations are not yet implemented
+with database storage. All endpoints return empty results or 404.
 """
-from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import List, Optional
-from uuid import uuid4
-from datetime import datetime
-import asyncpg
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional
 
 router = APIRouter(prefix="/platform-integrations", tags=["platform-integrations"])
-
-# TODO: Replace with actual database connection
-async def get_db():
-    """Get database connection"""
-    # Placeholder - replace with actual connection pool
-    pass
 
 
 @router.post("")
@@ -40,29 +34,11 @@ async def create_platform_integration(
         }
     }
     """
-    try:
-        integration_id = str(uuid4())
-
-        # TODO: Insert into PostgreSQL
-        # For now, return mock response
-        return {
-            "id": integration_id,
-            "name": name,
-            "provider_id": provider_id,
-            "connector_id": connector_id,
-            "description": description,
-            "integration_type": "platform",
-            "config": config,
-            "is_active": True,
-            "is_verified": False,
-            "created_at": datetime.now().isoformat(),
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to create platform integration: {str(e)}"
-        )
+    # TODO: Implement database storage
+    raise HTTPException(
+        status_code=501,
+        detail="Platform integrations storage not yet implemented"
+    )
 
 
 @router.get("")
@@ -72,35 +48,18 @@ async def list_platform_integrations(
     search: Optional[str] = Query(None),
 ):
     """List all platform integrations"""
-    try:
-        # TODO: Query PostgreSQL
-        # For now, return empty list
-        return {
-            "items": [],
-            "total": 0
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to list platform integrations: {str(e)}"
-        )
+    # TODO: Query PostgreSQL when implemented
+    return {
+        "items": [],
+        "total": 0
+    }
 
 
 @router.get("/{integration_id}")
 async def get_platform_integration(integration_id: str):
     """Get platform integration details"""
-    try:
-        # TODO: Query PostgreSQL
-        raise HTTPException(status_code=404, detail="Integration not found")
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get platform integration: {str(e)}"
-        )
+    # TODO: Query PostgreSQL when implemented
+    raise HTTPException(status_code=404, detail="Integration not found")
 
 
 @router.patch("/{integration_id}")
@@ -112,32 +71,15 @@ async def update_platform_integration(
     is_active: Optional[bool] = None,
 ):
     """Update platform integration"""
-    try:
-        # TODO: Update in PostgreSQL
-        return {
-            "id": integration_id,
-            "message": "Platform integration updated"
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update platform integration: {str(e)}"
-        )
+    # TODO: Implement database storage
+    raise HTTPException(status_code=404, detail="Integration not found")
 
 
 @router.delete("/{integration_id}")
 async def delete_platform_integration(integration_id: str):
     """Delete platform integration"""
-    try:
-        # TODO: Delete from PostgreSQL
-        return {"message": f"Platform integration {integration_id} deleted"}
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to delete platform integration: {str(e)}"
-        )
+    # TODO: Implement database storage
+    raise HTTPException(status_code=404, detail="Integration not found")
 
 
 @router.post("/{integration_id}/test")
@@ -146,20 +88,5 @@ async def test_platform_integration(integration_id: str):
     Test platform integration connection
     Uses the connector to verify connectivity
     """
-    try:
-        # TODO:
-        # 1. Get integration and connector
-        # 2. Execute test action via connector
-        # 3. Return result
-
-        return {
-            "success": True,
-            "message": "Platform integration test successful",
-            "details": {}
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to test platform integration: {str(e)}"
-        )
+    # TODO: Implement when database storage is ready
+    raise HTTPException(status_code=404, detail="Integration not found")

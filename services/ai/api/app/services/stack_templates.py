@@ -638,6 +638,198 @@ ZABBIX_STACK = StackTemplate(
 )
 
 
+KAMAILIO_SIP_ROUTER_STACK = StackTemplate(
+    id="kamailio-sip-router",
+    name="Kamailio SIP Router",
+    description="Enterprise SIP proxy/router for multi-PBX environments with load balancing",
+    category=StackCategory.INFRASTRUCTURE,
+    version="5.7.0",
+    icon="📞",
+    tags=["sip", "kamailio", "router", "proxy", "load-balancer", "telephony"],
+
+    components=[
+        StackComponent(
+            name="mysql",
+            display_name="MySQL Database",
+            description="Database for Kamailio routing tables and authentication",
+            image="mysql",
+            tag="8.0",
+            ports=[],
+            environment={
+                "MYSQL_ROOT_PASSWORD": "kamailio_root_pwd",
+                "MYSQL_DATABASE": "kamailio",
+                "MYSQL_USER": "kamailio",
+                "MYSQL_PASSWORD": "kamailio_pwd",
+            },
+            volumes=[
+                "kamailio_mysql_data:/var/lib/mysql",
+            ],
+            health_check={
+                "test": ["CMD", "mysqladmin", "ping", "-h", "localhost"],
+                "interval": "10s",
+                "timeout": "5s",
+                "retries": 5,
+            },
+        ),
+
+        StackComponent(
+            name="kamailio",
+            display_name="Kamailio SIP Server",
+            description="SIP proxy, router, and load balancer",
+            image="kamailio/kamailio",
+            tag="5.7.3-alpine",
+            ports=[
+                {"host": 5060, "container": 5060},  # SIP UDP
+                {"host": 5061, "container": 5061},  # SIP TCP
+                {"host": 5063, "container": 5063},  # SIP TLS
+            ],
+            environment={
+                "MYSQL_HOST": "mysql",
+                "MYSQL_DATABASE": "kamailio",
+                "MYSQL_USER": "kamailio",
+                "MYSQL_PASSWORD": "kamailio_pwd",
+                "SIP_DOMAIN": "sip.company.local",
+            },
+            depends_on=["mysql"],
+            volumes=[
+                "./kamailio/kamailio.cfg:/etc/kamailio/kamailio.cfg:ro",
+                "./kamailio/dispatcher.list:/etc/kamailio/dispatcher.list:ro",
+            ],
+            command="-DD -E",
+        ),
+
+        StackComponent(
+            name="rtpengine",
+            display_name="RTPEngine",
+            description="Media proxy for SIP calls (optional)",
+            image="drachtio/rtpengine",
+            tag="latest",
+            ports=[
+                {"host": 22222, "container": 22222},  # Control port
+                {"host": 30000, "container": 30000},  # RTP start
+            ],
+            environment={
+                "INTERFACES": "public/0.0.0.0",
+                "PORT_MIN": "30000",
+                "PORT_MAX": "40000",
+            },
+        ),
+    ],
+
+    deployment_targets=[DeploymentTarget.DOCKER],
+
+    resources=StackResourceRequirements(
+        min_ram_gb=2,
+        min_cpu_cores=2,
+        min_disk_gb=10,
+        requires_gpu=False,
+    ),
+
+    auto_setup=StackAutoSetup(
+        create_llm_connections=False,
+        configure_redis=False,
+        run_database_migrations=True,
+        pull_models=False,
+        create_network=True,
+        post_deploy_commands=[
+            "docker exec kamailio kamdbctl create",
+            "docker exec kamailio kamctl dispatcher reload",
+        ],
+        health_check_endpoints=[
+            "sip://{host}:5060",
+        ],
+        max_startup_time_seconds=120,
+    ),
+
+    configurable_options=[
+        {
+            "id": "sip_domain",
+            "label": "SIP Domain",
+            "type": "text",
+            "default": "sip.company.local",
+            "env_var": "SIP_DOMAIN",
+            "description": "Primary SIP domain for the router",
+        },
+        {
+            "id": "sip_udp_port",
+            "label": "SIP UDP Port",
+            "type": "number",
+            "default": 5060,
+            "description": "SIP UDP port (standard: 5060)",
+        },
+        {
+            "id": "enable_tls",
+            "label": "Enable SIP TLS",
+            "type": "boolean",
+            "default": False,
+            "description": "Enable secure SIP over TLS (port 5063)",
+        },
+        {
+            "id": "enable_rtpengine",
+            "label": "Enable RTPEngine",
+            "type": "boolean",
+            "default": True,
+            "description": "Enable media proxy for NAT traversal",
+        },
+    ],
+
+    setup_instructions="""
+## Kamailio SIP Router Setup
+
+1. Service will deploy on port 5060
+2. Configure backend PBX servers in dispatcher.list
+3. Access via SIP clients: sip.company.local:5060
+4. MySQL database initialized automatically
+
+## Backend PBX Configuration
+
+Edit `dispatcher.list` to add your PBX backends:
+```
+# Format: setid(int) destination(sip uri) flags(int) priority(int) attributes(str)
+1 sip:192.168.1.100:5061 0 0 # FreePBX 1
+1 sip:192.168.1.101:5062 0 0 # FreePBX 2
+1 sip:192.168.1.102:5063 0 0 # Asterisk
+```
+
+## Routing Rules
+
+Kamailio routes based on:
+- Extension ranges (1000-1999 → PBX1, 2000-2999 → PBX2)
+- Domain matching (pbx1.company.com → PBX1)
+- Load balancing (round-robin across all)
+- Failover (if PBX1 down, use PBX2)
+
+## Features Enabled
+- SIP registration proxy
+- Load balancing (dispatcher module)
+- NAT traversal (with RTPEngine)
+- Topology hiding
+- SIP authentication
+- Rate limiting
+""",
+
+    usage_instructions="""
+## Using Kamailio
+
+### Configure Phones
+Point all phones to Kamailio:
+- SIP Server: <kamailio-host-ip>
+- Port: 5060
+- Domain: sip.company.local
+
+### Add Backend PBX
+1. Deploy your PBX on different port (5061, 5062, etc.)
+2. Add to dispatcher.list
+3. Reload: `docker exec kamailio kamctl dispatcher reload`
+
+### Monitor
+- Check status: `docker exec kamailio kamctl dispatcher dump`
+- View logs: `docker logs kamailio -f`
+- Test routing: Send SIP OPTIONS to check connectivity
+"""
+)
+
+
 GLPI_STACK = StackTemplate(
     id="glpi",
     name="GLPI IT Management",
@@ -789,6 +981,7 @@ STACK_TEMPLATES = {
     "livekit-voice-agent": LIVEKIT_VOICE_AGENT_STACK,
     "temporal-worker": TEMPORAL_WORKER_STACK,
     "complete-automation-platform": COMPLETE_AUTOMATION_STACK,
+    "kamailio-sip-router": KAMAILIO_SIP_ROUTER_STACK,
     "portainer": PORTAINER_STACK,
     "zabbix": ZABBIX_STACK,
     "glpi": GLPI_STACK,

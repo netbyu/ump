@@ -1,0 +1,33 @@
+# Kamailio Dispatcher List
+# Backend PBX servers for load balancing and routing
+#
+# Format: setid(int) destination(sip uri) flags(int) priority(int) attributes(str)
+#
+# Flags:
+#   0 = normal
+#   1 = inactive
+#   2 = temporary inactive
+#
+# Priority: 0 = highest
+
+# Set 1: Primary PBX servers (Extensions 1000-1999)
+1 sip:192.168.1.100:5061 0 0 # FreePBX Primary
+1 sip:192.168.1.101:5062 0 1 # FreePBX Backup
+
+# Set 2: Secondary PBX servers (Extensions 2000-2999)
+2 sip:192.168.1.102:5063 0 0 # Asterisk Primary
+2 sip:192.168.1.103:5064 0 1 # Asterisk Backup
+
+# Set 3: Tertiary/Special purpose (Extensions 3000-3999)
+3 sip:192.168.1.104:5065 0 0 # Special PBX
+
+# Set 4: External SIP trunks
+4 sip:trunk1.provider.com:5060 0 0 # SIP Trunk 1
+4 sip:trunk2.provider.com:5060 0 1 # SIP Trunk 2 (backup)
+
+# Notes:
+# - Lower setid = higher priority for automatic selection
+# - Same setid = load balanced across destinations
+# - Priority 0 = primary, Priority 1 = backup
+# - Kamailio pings all destinations every 30s
+# - Inactive destinations are automatically skipped

@@ -87,116 +87,7 @@ import {
   useCredentialGroups,
 } from "@/hooks/use-devices";
 import { useProviders } from "@/hooks/use-connectors";
-import { Device, DeviceCreate, DeviceFilters, DeviceCategory, DeviceIntegration, DeviceIntegrationCreate, DeviceIntegrationUpdate, CredentialSource, CredentialType } from "@/types";
-
-// Mock data for when API is not available
-const MOCK_DEVICES: Device[] = [
-  {
-    id: 1,
-    uuid: "d1a2b3c4-e5f6-7890-abcd-ef1234567890",
-    device_name: "Primary PBX Server",
-    device_type: "pbx",
-    primary_address: "192.168.1.10",
-    location_id: 1,
-    manufacturer: "Avaya",
-    model: "Aura CM 8.1",
-    serial_number: "AV-2024-001",
-    firmware_version: "8.1.3.2",
-    mac_address: "00:1A:2B:3C:4D:5E",
-    is_active: true,
-    created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-01-20T15:30:00Z",
-    location_info: { id: 1, uuid: "loc-1", name: "Main Office", code: "HQ", is_active: true },
-  },
-  {
-    id: 2,
-    uuid: "a1b2c3d4-e5f6-7890-abcd-ef0987654321",
-    device_name: "Session Manager",
-    device_type: "server",
-    primary_address: "192.168.1.11",
-    location_id: 2,
-    manufacturer: "Avaya",
-    model: "Session Manager 8.1",
-    serial_number: "AV-2024-002",
-    firmware_version: "8.1.3.0",
-    mac_address: "00:1A:2B:3C:4D:5F",
-    is_active: true,
-    created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-01-20T15:30:00Z",
-    location_info: { id: 2, uuid: "loc-2", name: "Data Center", code: "DC1", is_active: true },
-  },
-  {
-    id: 3,
-    uuid: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    device_name: "Media Gateway 1",
-    device_type: "gateway",
-    primary_address: "192.168.1.20",
-    location_id: 1,
-    manufacturer: "Avaya",
-    model: "G450",
-    serial_number: "AV-2024-003",
-    firmware_version: "38.2.0",
-    mac_address: "00:1A:2B:3C:4D:60",
-    is_active: true,
-    created_at: "2024-01-16T09:00:00Z",
-    updated_at: "2024-01-18T11:00:00Z",
-    location_info: { id: 1, uuid: "loc-1", name: "Main Office", code: "HQ", is_active: true },
-  },
-  {
-    id: 4,
-    uuid: "c3d4e5f6-a7b8-9012-cdef-234567890123",
-    device_name: "SIP Trunk Gateway",
-    device_type: "gateway",
-    primary_address: "192.168.1.21",
-    location_id: 2,
-    manufacturer: "Cisco",
-    model: "CUBE",
-    serial_number: "CS-2024-001",
-    firmware_version: "17.3.4",
-    mac_address: "00:1B:2C:3D:4E:61",
-    is_active: true,
-    created_at: "2024-01-17T14:00:00Z",
-    updated_at: "2024-01-19T16:00:00Z",
-    location_info: { id: 2, uuid: "loc-2", name: "Data Center", code: "DC1", is_active: true },
-  },
-  {
-    id: 5,
-    uuid: "d4e5f6a7-b8c9-0123-def0-345678901234",
-    device_name: "Asterisk Dev Server",
-    device_type: "pbx",
-    primary_address: "192.168.1.30",
-    location_id: 3,
-    manufacturer: "Sangoma",
-    model: "FreePBX Distro",
-    serial_number: "SG-2024-001",
-    firmware_version: "16.0.33",
-    is_active: false,
-    created_at: "2024-01-18T11:00:00Z",
-    updated_at: "2024-01-20T09:00:00Z",
-    location_info: { id: 3, uuid: "loc-3", name: "Branch Office", code: "BR1", is_active: true },
-  },
-];
-
-const MOCK_DEVICE_TYPES = [
-  { id: 1, name: "server", display_name: "Server", category: "server" as DeviceCategory, is_active: true, display_order: 1 },
-  { id: 2, name: "pbx", display_name: "PBX", category: "telephony" as DeviceCategory, is_active: true, display_order: 2 },
-  { id: 3, name: "gateway", display_name: "Gateway", category: "telephony" as DeviceCategory, is_active: true, display_order: 3 },
-  { id: 4, name: "phone", display_name: "IP Phone", category: "endpoint" as DeviceCategory, is_active: true, display_order: 4 },
-  { id: 5, name: "switch", display_name: "Network Switch", category: "network" as DeviceCategory, is_active: true, display_order: 5 },
-];
-
-const MOCK_MANUFACTURERS = [
-  { id: 1, name: "avaya", display_name: "Avaya", is_active: true, display_order: 1 },
-  { id: 2, name: "cisco", display_name: "Cisco", is_active: true, display_order: 2 },
-  { id: 3, name: "sangoma", display_name: "Sangoma", is_active: true, display_order: 3 },
-  { id: 4, name: "microsoft", display_name: "Microsoft", is_active: true, display_order: 4 },
-];
-
-const MOCK_LOCATIONS = [
-  { id: 1, uuid: "loc-1", name: "Main Office", code: "HQ", is_active: true },
-  { id: 2, uuid: "loc-2", name: "Data Center", code: "DC1", is_active: true },
-  { id: 3, uuid: "loc-3", name: "Branch Office", code: "BR1", is_active: true },
-];
+import { Device, DeviceCreate, DeviceFilters, DeviceIntegration, DeviceIntegrationCreate, DeviceIntegrationUpdate, CredentialSource, CredentialType } from "@/types";
 
 // Device type icon mapping
 function getDeviceIcon(deviceType: string) {
@@ -965,11 +856,11 @@ export default function DevicesPage() {
   const { data: manufacturersData } = useDeviceManufacturers();
   const { data: locationsData } = useDeviceLocations();
 
-  // Use mock data if API fails
-  const devices = devicesData || MOCK_DEVICES;
-  const deviceTypes = deviceTypesData || MOCK_DEVICE_TYPES;
-  const manufacturers = manufacturersData || MOCK_MANUFACTURERS;
-  const locations = locationsData || MOCK_LOCATIONS;
+  // Use empty arrays if API returns no data
+  const devices = devicesData || [];
+  const deviceTypes = deviceTypesData || [];
+  const manufacturers = manufacturersData || [];
+  const locations = locationsData || [];
 
   // Mutations
   const createMutation = useCreateDevice();

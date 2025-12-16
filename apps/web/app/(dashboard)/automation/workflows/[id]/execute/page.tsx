@@ -15,8 +15,7 @@ export default function WorkflowExecutePage() {
   const queryClient = useQueryClient();
   const workflowId = params.id as string;
 
-  // For demo, we'll use a mock execution ID
-  // In real app, this would be from URL params or query string
+  // Get execution ID from URL or generate one for new executions
   const executionId = `${workflowId}-exec-${Date.now()}`;
 
   // Poll Temporal workflow for real-time updates
@@ -27,92 +26,8 @@ export default function WorkflowExecutePage() {
         `${API_BASE_URL}/workflows/executions/${executionId}`
       );
       if (!response.ok) {
-        // Return mock data for demo
-        return {
-          execution_id: executionId,
-          workflow_id: workflowId,
-          workflow_name: "Customer Onboarding",
-          status: "running",
-          total_steps: 5,
-          completed_steps: 2,
-          started_at: new Date().toISOString(),
-          step_results: [
-            {
-              step_id: "step-1",
-              step_name: "Validate Email",
-              step_order: 1,
-              deployment_mode: "always_auto",
-              impact_level: "accessory",
-              status: "completed",
-              duration_ms: 234,
-              started_at: new Date(Date.now() - 60000).toISOString(),
-              completed_at: new Date(Date.now() - 59766).toISOString(),
-            },
-            {
-              step_id: "step-2",
-              step_name: "Check Duplicates",
-              step_order: 2,
-              deployment_mode: "auto_monitored",
-              impact_level: "read",
-              status: "completed",
-              duration_ms: 1200,
-              started_at: new Date(Date.now() - 59000).toISOString(),
-              completed_at: new Date(Date.now() - 57800).toISOString(),
-            },
-            {
-              step_id: "step-3",
-              step_name: "Create CRM Record",
-              step_order: 3,
-              deployment_mode: "validation_required",
-              impact_level: "write",
-              status: "waiting_approval",
-              started_at: new Date().toISOString(),
-              preview_data: {
-                operation: "CREATE",
-                target: "salesforce.contacts",
-                environment: "PRODUCTION",
-                record_data: {
-                  name: "John Doe",
-                  email: "john@example.com",
-                  company: "Acme Corp",
-                  tier: "premium",
-                  credit_limit: 5000,
-                },
-              },
-              impact_analysis: {
-                impact_level: "write",
-                risk_level: "medium",
-                environment: "PRODUCTION",
-                warnings: [
-                  "⚠️ This will execute in PRODUCTION environment",
-                  "This will create a new customer record",
-                  "💳 Setting credit limit to $5,000",
-                ],
-                required_checks: [
-                  "I have reviewed the customer data",
-                  "I confirm this is for PRODUCTION",
-                  "I have approval for credit limit over $1,000",
-                ],
-              },
-            },
-            {
-              step_id: "step-4",
-              step_name: "Setup Billing Account",
-              step_order: 4,
-              deployment_mode: "always_manual",
-              impact_level: "critical",
-              status: "pending",
-            },
-            {
-              step_id: "step-5",
-              step_name: "Send Welcome Email",
-              step_order: 5,
-              deployment_mode: "always_auto",
-              impact_level: "accessory",
-              status: "pending",
-            },
-          ],
-        };
+        // No execution data available
+        return null;
       }
       return response.json();
     },
