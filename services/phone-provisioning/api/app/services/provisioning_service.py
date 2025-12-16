@@ -14,7 +14,7 @@ from ..models.phone import PhoneAssignment, ProvisioningRequest, ProvisioningRes
 class PhoneProvisioningService:
     """Main provisioning service"""
 
-    def __init__(self, config_dir: str = "/var/lib/phone-configs"):
+    def __init__(self, config_dir: str = "./phone-configs"):
         self.config_generator = PhoneConfigGenerator()
         self.config_dir = config_dir
 

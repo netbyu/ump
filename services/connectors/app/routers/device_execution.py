@@ -33,45 +33,12 @@ class ExecuteResponse(BaseModel):
     execution_time_ms: Optional[int] = None
 
 
-# In-memory mock for device integrations (in production, this would come from the main API database)
-# This is a simplified version - the real implementation would query the devices database
-MOCK_INTEGRATIONS = {
-    1: {
-        "id": 1,
-        "device_id": 1,
-        "provider_id": "zabbix",
-        "host": "192.168.1.50",
-        "port": 443,
-        "credentials": {
-            "username": "Admin",
-            "password": "zabbix",
-            "api_url": "https://192.168.1.50/api_jsonrpc.php",
-        },
-    },
-    2: {
-        "id": 2,
-        "device_id": 1,
-        "provider_id": "portainer",
-        "host": "192.168.1.50",
-        "port": 9443,
-        "credentials": {
-            "api_key": "ptr_xxxxx",
-            "base_url": "https://192.168.1.50:9443",
-        },
-    },
-}
-
-
 async def get_integration_config(integration_id: int) -> Optional[Dict[str, Any]]:
     """
     Get integration configuration including credentials.
 
-    In production, this would:
-    1. Query the devices.device_integrations table
-    2. Decrypt credentials
-    3. Return the full configuration
+    Fetches from the main API which manages device integrations.
     """
-    # For now, return mock data or try to fetch from main API
     import os
     import httpx
 
@@ -79,7 +46,7 @@ async def get_integration_config(integration_id: int) -> Optional[Dict[str, Any]
 
     try:
         async with httpx.AsyncClient() as client:
-            # Try to get integration from main API
+            # Get integration from main API
             response = await client.get(
                 f"{main_api_url}/api/device-integrations/{integration_id}",
                 timeout=5.0
@@ -89,8 +56,7 @@ async def get_integration_config(integration_id: int) -> Optional[Dict[str, Any]
     except Exception:
         pass
 
-    # Fall back to mock data
-    return MOCK_INTEGRATIONS.get(integration_id)
+    return None
 
 
 @router.post(

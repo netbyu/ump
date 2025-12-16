@@ -39,6 +39,8 @@ class ProvisioningStatus(str, Enum):
 
 class PhoneModel(BaseModel):
     """Phone model/hardware definition"""
+    model_config = {"protected_namespaces": ()}
+
     id: str
     vendor: PhoneVendor
     model_name: str
@@ -61,6 +63,8 @@ class PhoneModel(BaseModel):
 
 class PhoneTemplate(BaseModel):
     """Configuration template"""
+    model_config = {"protected_namespaces": ()}
+
     id: str
     name: str
     description: Optional[str]
